@@ -1,0 +1,782 @@
+<!doctype html>
+<html class="no-js" lang="zh-CN" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="OneBot 相关" href="../ob_refer/index.html" /><link rel="prev" title="CLI 界面" href="cli.html" />
+        <link rel="canonical" href="/melobot/dive_in/mp.html" />
+
+    <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
+    <link rel="icon" type="image/svg+xml" href="_static/favicon.svg" />
+    <link rel="shortcut icon" href="_static/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="melobot" />
+    <link rel="manifest" href="_static/site.webmanifest" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
+        <title>多进程支持 - melobot 3.4.0.post19.dev0+6484821</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+      }
+    }
+  }
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">melobot 3.4.0.post19.dev0+6484821</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <span class="sidebar-brand-text">melobot 3.4.0.post19.dev0+6484821</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">起步</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input aria-label="Toggle navigation of 开始使用" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro/async-callable.html">异步可调用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">OneBot 事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">OneBot 消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/action-echo.html">OneBot 行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/use-plugin.html">插件系统的使用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/use-session.html">交互式处理与会话的使用</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">深入与最佳实践</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">开始探索</a><input aria-label="Toggle navigation of 开始探索" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="framework.html">整体架构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lifetime.html">bot 生命周期</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source_adapter.html">源与适配器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adapter_extra.html">适配器层其他组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="process_flow.html">事件处理流与机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dependency_injection.html">依赖注入与特性</a></li>
+<li class="toctree-l2"><a class="reference internal" href="session_control.html">会话控制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_usage.html">插件系统与进阶用法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bot.html">bot 对象与相关接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="log.html">日志组件与日志修补</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">实用组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="typ.html">类型工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="import_lazy.html">导入与惰性加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="context.html">上下文管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta.html">元信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html">CLI 界面</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">多进程支持</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">相关知识</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../ob_refer/index.html">OneBot 相关</a><input aria-label="Toggle navigation of OneBot 相关" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/impl.html">OneBot 协议实现端类型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/event-action.html">OneBot 事件、行为和回应</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API</a><input aria-label="Toggle navigation of melobot API" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.html">melobot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.bot.html">melobot.bot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.adapter.html">melobot.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.protocol.html">melobot.protocols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.handle.html">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.log.html">melobot.log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.utils.html">melobot.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.mp.html">melobot.mp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.mixin.html">melobot.mixin</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API</a><input aria-label="Toggle navigation of protocols.onebot API" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.html">v11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.const.html">v11.const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.adapter.html">v11.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.io.html">v11.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.handle.html">v11.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.utils.html">v11.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../console_api/index.html">protocols.console API</a><input aria-label="Toggle navigation of protocols.console API" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../console_api/console.html">console</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../console_api/console.const.html">console.const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../console_api/console.adapter.html">console.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../console_api/console.io.html">console.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../console_api/console.handle.html">console.handle</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">更多</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../update-log.html">更新日志</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/dive_in/mp.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/dive_in/mp.md" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="id1">
+<h1>多进程支持<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<p>异步适合等待网络和文件 IO，但 CPU 密集型计算仍会长时间占用事件循环所在的线程。图像处理、压缩、复杂解析或大量数值计算等任务，可以交给独立进程执行。<code class="docutils literal notranslate"><span class="pre">melobot.mp</span></code> 在 Python 多进程接口之上提供了适合 melobot 程序的 spawn 模式进程、进程池和 pickle 包装器。</p>
+<section id="id2">
+<h2>原理简介<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>spawn 模式不会复制父进程的完整内存，而是启动一个新的 Python 解释器。父进程需要把目标函数和参数序列化，子进程再导入入口模块、反序列化对象并开始执行。因此它有两个重要特点：</p>
+<ol class="arabic simple">
+<li><p>父子进程不共享普通全局变量，各自拥有独立的解释器和模块状态；</p></li>
+<li><p>发送到子进程的目标函数和参数，以及进程池返回给父进程的结果，必须可以被 pickle。</p></li>
+</ol>
+<p>普通 spawn 会重新准备主模块。对已经加载协议、插件和生命周期逻辑的 bot 程序而言，不受控制的重复导入可能产生级联初始化。melobot 的多进程组件要求显式提供一个<strong>子进程入口文件</strong>，并让子进程在受控的工作目录、<code class="docutils literal notranslate"><span class="pre">sys.path</span></code> 和 <code class="docutils literal notranslate"><span class="pre">sys.argv</span></code> 下加载它。melobot 管理的子进程还会忽略常见终止信号，由父进程统一管理退出。</p>
+<p>只要不使用本篇的进程创建组件，标准库 <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> 仍按原有方式工作。</p>
+<div class="tip admonition">
+<p class="admonition-title">听不懂也没关系</p>
+<p>日常使用只需记住三点：准备一个轻量的 worker 入口文件；在主进程创建 <code class="docutils literal notranslate"><span class="pre">SpawnProcessPoolExecutor</span></code>；对象无法按原模块来源在子进程还原时用 <code class="docutils literal notranslate"><span class="pre">PBox</span></code> 包装。其余细节可以等遇到跨进程问题时再回来查阅。</p>
+</div>
+</section>
+<section id="id3">
+<h2>判断当前进程<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../api/melobot.mp.html#melobot.mp.in_main_process" title="melobot.mp.in_main_process"><code class="xref py py-func docutils literal notranslate"><span class="pre">in_main_process()</span></code></a> 判断当前进程是否是 Python 主进程；<a class="reference internal" href="../api/melobot.mp.html#melobot.mp.in_melobot_sub_process" title="melobot.mp.in_melobot_sub_process"><code class="xref py py-func docutils literal notranslate"><span class="pre">in_melobot_sub_process()</span></code></a> 判断当前进程是否由 melobot 的 <code class="docutils literal notranslate"><span class="pre">SpawnProcess</span></code> 系列组件管理。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.mp</span><span class="w"> </span><span class="kn">import</span> <span class="n">in_main_process</span><span class="p">,</span> <span class="n">in_melobot_sub_process</span>
+
+<span class="k">if</span> <span class="n">in_main_process</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;运行在主进程&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">in_melobot_sub_process</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;运行在 melobot 管理的子进程&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;运行在其他方式创建的子进程&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>所处位置</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">in_main_process()</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">in_melobot_sub_process()</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>主进程</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>melobot 管理的子进程</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>其他多进程库创建的子进程</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">SpawnProcess</span></code> 不允许在 melobot 管理的子进程中继续创建下一层子进程。若这里抛出异常，通常意味着把创建进程的代码放进了 worker 入口顶层，或入口路径指向了不合适的主程序文件。</p>
+</section>
+<section id="worker">
+<h2>准备 worker 入口<a class="headerlink" href="#worker" title="Link to this heading">¶</a></h2>
+<p>以下示例都使用一个单独的 <code class="docutils literal notranslate"><span class="pre">worker.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># worker.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">square</span><span class="p">(</span><span class="n">number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">number</span> <span class="o">*</span> <span class="n">number</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">print_square</span><span class="p">(</span><span class="n">number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">square</span><span class="p">(</span><span class="n">number</span><span class="p">))</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Multiplier</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="n">factor</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor</span> <span class="o">*</span> <span class="n">number</span>
+</pre></div>
+</div>
+<p>worker 需要的函数和类必须定义在模块顶层。不要把它们放在 <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code> 中，因为子进程加载入口时的模块名并不是 <code class="docutils literal notranslate"><span class="pre">__main__</span></code>。</p>
+<p>主程序通过文件路径指定入口：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">WORKER_ENTRY</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s2">&quot;worker.py&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">entry</span></code> 必须指向存在且可加载的模块文件，而不是目录。可选的 <code class="docutils literal notranslate"><span class="pre">argv</span></code> 会完整地作为子进程 <code class="docutils literal notranslate"><span class="pre">sys.argv</span></code>；不提供时默认使用仅包含入口路径的列表。</p>
+</section>
+<section id="spawnprocess">
+<h2>SpawnProcess<a class="headerlink" href="#spawnprocess" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../api/melobot.mp.html#melobot.mp.SpawnProcess" title="melobot.mp.SpawnProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpawnProcess</span></code></a> 对应一个 spawn 子进程，接口与 <code class="docutils literal notranslate"><span class="pre">multiprocessing.Process</span></code> 接近，额外要求首个参数 <code class="docutils literal notranslate"><span class="pre">entry</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.mp</span><span class="w"> </span><span class="kn">import</span> <span class="n">PBox</span><span class="p">,</span> <span class="n">SpawnProcess</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">process</span> <span class="o">=</span> <span class="n">SpawnProcess</span><span class="p">(</span>
+        <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="n">PBox</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;print_square&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">),</span>
+        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,),</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;square-worker&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">exitcode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;子进程异常退出：</span><span class="si">{</span><span class="n">process</span><span class="o">.</span><span class="n">exitcode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">start()</span></code> 启动进程，<code class="docutils literal notranslate"><span class="pre">join()</span></code> 等待结束，<code class="docutils literal notranslate"><span class="pre">exitcode</span></code> 用于检查退出状态。单进程接口适合一次性的、需要独立生命周期或自定义守护属性的任务。若需要提交许多短任务，反复创建进程开销较大，应使用进程池。</p>
+</section>
+<section id="spawnprocesspool">
+<h2>SpawnProcessPool<a class="headerlink" href="#spawnprocesspool" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../api/melobot.mp.html#melobot.mp.SpawnProcessPool" title="melobot.mp.SpawnProcessPool"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpawnProcessPool</span></code></a> 对应传统的 <code class="docutils literal notranslate"><span class="pre">multiprocessing.pool.Pool</span></code>，适合已有代码正在使用 <code class="docutils literal notranslate"><span class="pre">map</span></code>、<code class="docutils literal notranslate"><span class="pre">apply_async</span></code> 等 API 的情况：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.mp</span><span class="w"> </span><span class="kn">import</span> <span class="n">PBox</span><span class="p">,</span> <span class="n">SpawnProcessPool</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">square</span> <span class="o">=</span> <span class="n">PBox</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">SpawnProcessPool</span><span class="p">(</span>
+        <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">,</span>
+        <span class="n">processes</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">maxtasksperchild</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">square</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">square</span><span class="p">,</span> <span class="p">(</span><span class="mi">20</span><span class="p">,))</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">results</span> <span class="o">==</span> <span class="p">[</span><span class="n">n</span> <span class="o">*</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="mi">400</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">processes</span></code> 控制 worker 数量；<code class="docutils literal notranslate"><span class="pre">initializer</span></code> 和 <code class="docutils literal notranslate"><span class="pre">initargs</span></code> 可在每个 worker 启动时初始化只属于该进程的资源；<code class="docutils literal notranslate"><span class="pre">maxtasksperchild</span></code> 可在执行指定数量的任务后替换 worker，适合缓解第三方计算库长期运行造成的资源累积。</p>
+<p>新代码通常不必选择这个接口。它的异步结果类型和管理习惯较旧，和 <code class="docutils literal notranslate"><span class="pre">asyncio</span></code> 配合也不如下一节直接。</p>
+</section>
+<section id="spawnprocesspoolexecutor">
+<h2>SpawnProcessPoolExecutor<a class="headerlink" href="#spawnprocesspoolexecutor" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../api/melobot.mp.html#melobot.mp.SpawnProcessPoolExecutor" title="melobot.mp.SpawnProcessPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpawnProcessPoolExecutor</span></code></a> 基于 <code class="docutils literal notranslate"><span class="pre">concurrent.futures.ProcessPoolExecutor</span></code>，是最推荐使用的多进程组件。同步代码可以使用 <code class="docutils literal notranslate"><span class="pre">submit</span></code> 和 <code class="docutils literal notranslate"><span class="pre">map</span></code>，异步代码可以把它传给事件循环的 <code class="docutils literal notranslate"><span class="pre">run_in_executor</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.mp</span><span class="w"> </span><span class="kn">import</span> <span class="n">PBox</span><span class="p">,</span> <span class="n">SpawnProcessPoolExecutor</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="n">square</span> <span class="o">=</span> <span class="n">PBox</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">SpawnProcessPoolExecutor</span><span class="p">(</span>
+        <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">,</span>
+        <span class="n">max_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="n">executor</span><span class="p">,</span> <span class="n">square</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+        <span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">calculate</span><span class="p">()))</span>
+</pre></div>
+</div>
+<p>对于持续运行的 bot，建议在 bot 启动 hook 或插件就绪 hook 中创建执行器，在停止 hook 中调用 <code class="docutils literal notranslate"><span class="pre">shutdown()</span></code>，而不是每处理一个事件就创建新池。进程池本身也不应隐藏在每次调用都会重新执行的函数内部。</p>
+<p>同步环境可直接提交任务：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">square</span> <span class="o">=</span> <span class="n">PBox</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">SpawnProcessPoolExecutor</span><span class="p">(</span><span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">,</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">square</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="o">==</span> <span class="mi">625</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">initializer</span></code> 和 <code class="docutils literal notranslate"><span class="pre">initargs</span></code> 可用于初始化每个 worker，例如建立进程私有的模型或解析器。不要在 initializer 中创建依赖父进程事件循环的对象，也不要假设 worker 之间共享初始化结果。</p>
+<div class="note admonition">
+<p class="admonition-title">进程不是异步函数加速器</p>
+<p>进程池主要解决 CPU 密集型工作。网络请求、数据库访问等 IO 密集型任务优先使用原生异步接口；将它们放进进程池通常只会增加序列化和进程通信开销。</p>
+</div>
+</section>
+<section id="pbox-pickle">
+<h2>PBox：改变对象的 pickle 来源<a class="headerlink" href="#pbox-pickle" title="Link to this heading">¶</a></h2>
+<p>Python pickle 通常不保存函数和类的完整代码，而是保存“模块名 + 限定名称”，反序列化时重新导入模块并查找对象。这对 melobot 的自定义入口会产生一个问题：父进程看到的模块名，可能与子进程加载 worker 入口后的模块名不同。</p>
+<p><a class="reference internal" href="../api/melobot.mp.html#melobot.mp.PBox" title="melobot.mp.PBox"><code class="xref py py-class docutils literal notranslate"><span class="pre">PBox</span></code></a> 在自身被 pickle 时，先指定子进程应该加载哪个模块，再把包装对象还原出来。它不是函数代理：在父进程里不能直接调用 <code class="docutils literal notranslate"><span class="pre">PBox</span></code>，只有把它作为进程目标、任务函数或参数提交后，它才会在子进程反序列化成真正对象。</p>
+<section id="id4">
+<h3>两种包装模式<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">value</span></code> 和 <code class="docutils literal notranslate"><span class="pre">name</span></code> 必须二选一：</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>模式</p></th>
+<th class="head"><p>示例</p></th>
+<th class="head"><p>子进程得到什么</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>按名称获取</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PBox(name=&quot;square&quot;,</span> <span class="pre">...)</span></code></p></td>
+<td><p>加载模块后执行 <code class="docutils literal notranslate"><span class="pre">getattr(module,</span> <span class="pre">&quot;square&quot;)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>携带对象值</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PBox(Multiplier(3),</span> <span class="pre">...)</span></code></p></td>
+<td><p>pickle 对象状态，并从指定模块恢复其函数或类来源</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>按名称获取是包装顶层函数、类或模块常量时最简单、最稳定的方式。它取得的是子进程新加载模块中的值，不会携带父进程对该全局变量所做的运行时修改：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># worker.py 中存在：DEFAULT_SIZE = 128</span>
+    <span class="n">default_size</span> <span class="o">=</span> <span class="n">PBox</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;DEFAULT_SIZE&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">)</span>
+
+    <span class="c1"># 把 default_size 作为参数提交后，子进程得到 worker.py 自己的 128</span>
+    <span class="n">process</span> <span class="o">=</span> <span class="n">SpawnProcess</span><span class="p">(</span>
+        <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="nb">print</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">default_size</span><span class="p">,),</span>
+    <span class="p">)</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>携带对象值适合需要保存实例状态的可调用对象。以下 <code class="docutils literal notranslate"><span class="pre">Multiplier(3)</span></code> 的 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 会随 pickle 数据发送到 worker，类则从入口模块恢复：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">worker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Multiplier</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">multiply_by_three</span> <span class="o">=</span> <span class="n">PBox</span><span class="p">(</span><span class="n">Multiplier</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">SpawnProcessPoolExecutor</span><span class="p">(</span><span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">,</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">multiply_by_three</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]))</span>
+
+    <span class="k">assert</span> <span class="n">results</span> <span class="o">==</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>普通整数、字符串、列表和字典本来就能 pickle，应直接作为参数传递，不需要套 <code class="docutils literal notranslate"><span class="pre">PBox</span></code>。<code class="docutils literal notranslate"><span class="pre">PBox(value=...)</span></code> 主要用于需要修正函数或用户自定义类来源的对象。</p>
+</section>
+<section id="module-entry">
+<h3>module 与 entry<a class="headerlink" href="#module-entry" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">module</span></code> 和 <code class="docutils literal notranslate"><span class="pre">entry</span></code> 决定子进程去哪里找对象：</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数组合</p></th>
+<th class="head"><p>行为</p></th>
+<th class="head"><p>适用场景</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>仅 <code class="docutils literal notranslate"><span class="pre">entry</span></code></p></td>
+<td><p>入口按特殊模块名 <code class="docutils literal notranslate"><span class="pre">__mp_main__</span></code> 加载</p></td>
+<td><p>单文件 worker，最常用</p></td>
+</tr>
+<tr class="row-odd"><td><p>仅 <code class="docutils literal notranslate"><span class="pre">module</span></code></p></td>
+<td><p>按正常 Python 规则导入模块</p></td>
+<td><p>已安装或已在子进程 <code class="docutils literal notranslate"><span class="pre">sys.path</span></code> 中的包</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">module</span></code> + <code class="docutils literal notranslate"><span class="pre">entry</span></code></p></td>
+<td><p>从指定文件位置按给定模块名加载</p></td>
+<td><p>未安装的包、需要明确定位的模块</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>例如，一个已安装包中的顶层函数可以只指定模块名：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">my_project.workers</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize</span>
+
+<span class="n">normalize_for_child</span> <span class="o">=</span> <span class="n">PBox</span><span class="p">(</span>
+    <span class="n">normalize</span><span class="p">,</span>
+    <span class="n">module</span><span class="o">=</span><span class="s2">&quot;my_project.workers&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>若同时给出文件路径，模块名必须与路径尾部一致。例如模块 <code class="docutils literal notranslate"><span class="pre">my_project.workers</span></code> 对应 <code class="docutils literal notranslate"><span class="pre">/srv/app/my_project/workers.py</span></code>，不能随意指定为不相关的别名：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">normalize_for_child</span> <span class="o">=</span> <span class="n">PBox</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;normalize&quot;</span><span class="p">,</span>
+    <span class="n">module</span><span class="o">=</span><span class="s2">&quot;my_project.workers&quot;</span><span class="p">,</span>
+    <span class="n">entry</span><span class="o">=</span><span class="s2">&quot;/srv/app/my_project/workers.py&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>当 worker 入口就是本篇示例的单个 <code class="docutils literal notranslate"><span class="pre">worker.py</span></code> 时，省略 <code class="docutils literal notranslate"><span class="pre">module</span></code> 并提供 <code class="docutils literal notranslate"><span class="pre">entry=WORKER_ENTRY</span></code> 最清晰。</p>
+</section>
+<section id="id5">
+<h3>包装作为参数的对象<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">PBox</span></code> 不只可作为 target，也能嵌套在进程参数中。下面让子进程收到真正的 <code class="docutils literal notranslate"><span class="pre">Multiplier</span></code> 实例，再由另一个顶层函数调用它：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># worker.py 再增加：</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_and_print</span><span class="p">(</span><span class="n">worker</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">],</span> <span class="n">number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">worker</span><span class="p">(</span><span class="n">number</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">worker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Multiplier</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">apply_and_print</span> <span class="o">=</span> <span class="n">PBox</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;apply_and_print&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">)</span>
+    <span class="n">multiplier</span> <span class="o">=</span> <span class="n">PBox</span><span class="p">(</span><span class="n">Multiplier</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">)</span>
+
+    <span class="n">process</span> <span class="o">=</span> <span class="n">SpawnProcess</span><span class="p">(</span>
+        <span class="n">entry</span><span class="o">=</span><span class="n">WORKER_ENTRY</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="n">apply_and_print</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">multiplier</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>这里 <code class="docutils literal notranslate"><span class="pre">apply_and_print</span></code> 在 target 位置还原为函数，<code class="docutils literal notranslate"><span class="pre">multiplier</span></code> 在 args 中还原为带有 <code class="docutils literal notranslate"><span class="pre">factor=5</span></code> 状态的实例，最终输出 <code class="docutils literal notranslate"><span class="pre">40</span></code>。这展示了一个关键点：每个 <code class="docutils literal notranslate"><span class="pre">PBox</span></code> 会在反序列化时独立还原，因而 target 和 args 中都可以使用。</p>
+</section>
+<section id="pbox">
+<h3>PBox 的边界<a class="headerlink" href="#pbox" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">PBox</span></code> 解决的是<strong>对象来源映射</strong>，不是把任意 Python 运行时状态变成可序列化数据。使用时应遵守以下规则：</p>
+<ul class="simple">
+<li><p>优先包装模块顶层定义的函数、类和可调用实例；</p></li>
+<li><p>lambda、嵌套函数和捕获外部变量的闭包通常无法在子进程入口中按限定名称重建；</p></li>
+<li><p>类方法和实例绑定方法会被拒绝。需要传递状态时，包装整个类或实例；需要调用方法时，可让实例实现 <code class="docutils literal notranslate"><span class="pre">__call__</span></code>，或增加顶层包装函数；</p></li>
+<li><p>文件句柄、锁、事件循环、网络连接等系统资源通常不能 pickle，应在 worker initializer 或任务内部创建；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> 与 <code class="docutils literal notranslate"><span class="pre">value</span></code> 不能同时提供，也不能同时为空；</p></li>
+<li><p>pickle 错误可能在 <code class="docutils literal notranslate"><span class="pre">start()</span></code>、<code class="docutils literal notranslate"><span class="pre">submit()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">map()</span></code> 真正序列化任务时才出现，而不是创建 <code class="docutils literal notranslate"><span class="pre">PBox</span></code> 时立即出现。</p></li>
+</ul>
+<div class="attention admonition">
+<p class="admonition-title">安全提醒</p>
+<p>pickle 可以在反序列化时执行代码。只应接收并反序列化当前程序自己产生、通过可信进程通道传递的数据，不要对外部不可信字节使用 pickle 或 <code class="docutils literal notranslate"><span class="pre">PBox</span></code>。</p>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>组件选型<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>需求</p></th>
+<th class="head"><p>推荐组件</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>判断代码运行在哪类进程</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">in_main_process</span></code> / <code class="docutils literal notranslate"><span class="pre">in_melobot_sub_process</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>启动一个有独立生命周期的任务</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SpawnProcess</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>兼容已有 <code class="docutils literal notranslate"><span class="pre">multiprocessing.Pool</span></code> 代码</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SpawnProcessPool</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>新项目、同步任务批处理或与 asyncio 集成</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SpawnProcessPoolExecutor</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>修正函数、类或实例在子进程中的 pickle 来源</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PBox</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>模块也提供 <code class="docutils literal notranslate"><span class="pre">Process</span></code>、<code class="docutils literal notranslate"><span class="pre">ProcessPool</span></code> 和 <code class="docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code> 作为上述三个 Spawn 类的短别名。文档和公共库代码中使用完整名称通常更容易看出其 spawn 语义。</p>
+</section>
+<section id="id7">
+<h2>总结<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<p>准备轻量 worker 入口，把 CPU 密集任务提交给长期复用的 <code class="docutils literal notranslate"><span class="pre">SpawnProcessPoolExecutor</span></code>，是最常见的使用方式。函数可直接从入口按名称取得时使用 <code class="docutils literal notranslate"><span class="pre">PBox(name=...)</span></code>；需要携带可调用实例状态时使用 <code class="docutils literal notranslate"><span class="pre">PBox(value=...)</span></code>。始终用主模块保护创建进程的代码，并把数据库连接、事件循环和其他进程私有资源留到 worker 内初始化。</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../ob_refer/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">OneBot 相关</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="cli.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">CLI 界面</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, contributors of this doc
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/Meloland/melobot" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">多进程支持</a><ul>
+<li><a class="reference internal" href="#id2">原理简介</a></li>
+<li><a class="reference internal" href="#id3">判断当前进程</a></li>
+<li><a class="reference internal" href="#worker">准备 worker 入口</a></li>
+<li><a class="reference internal" href="#spawnprocess">SpawnProcess</a></li>
+<li><a class="reference internal" href="#spawnprocesspool">SpawnProcessPool</a></li>
+<li><a class="reference internal" href="#spawnprocesspoolexecutor">SpawnProcessPoolExecutor</a></li>
+<li><a class="reference internal" href="#pbox-pickle">PBox：改变对象的 pickle 来源</a><ul>
+<li><a class="reference internal" href="#id4">两种包装模式</a></li>
+<li><a class="reference internal" href="#module-entry">module 与 entry</a></li>
+<li><a class="reference internal" href="#id5">包装作为参数的对象</a></li>
+<li><a class="reference internal" href="#pbox">PBox 的边界</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6">组件选型</a></li>
+<li><a class="reference internal" href="#id7">总结</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=738234d0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    </body>
+</html>

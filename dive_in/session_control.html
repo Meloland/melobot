@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="插件机制与管理" href="plugin_usage.html" /><link rel="prev" title="依赖注入与特性" href="dependency_injection.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="插件系统与进阶用法" href="plugin_usage.html" /><link rel="prev" title="依赖注入与特性" href="dependency_injection.html" />
         <link rel="canonical" href="/melobot/dive_in/session_control.html" />
 
     <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>会话控制与机制 - melobot 3.4.0</title>
+        <title>会话控制与管理 - melobot 3.4.0.post19.dev0+6484821</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -171,7 +171,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.4.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.4.0.post19.dev0+6484821</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -192,7 +192,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.4.0</span>
+  <span class="sidebar-brand-text">melobot 3.4.0.post19.dev0+6484821</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -223,8 +223,17 @@
 <li class="toctree-l2"><a class="reference internal" href="adapter_extra.html">适配器层其他组件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="process_flow.html">事件处理流与机制</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dependency_injection.html">依赖注入与特性</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">会话控制与机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plugin_usage.html">插件机制与管理</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">会话控制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_usage.html">插件系统与进阶用法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bot.html">bot 对象与相关接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="log.html">日志组件与日志修补</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">实用组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="typ.html">类型工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="import_lazy.html">导入与惰性加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="context.html">上下文管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta.html">元信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html">CLI 界面</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp.html">多进程支持</a></li>
 </ul>
 </li>
 </ul>
@@ -321,13 +330,686 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
           <section id="id1">
-<h1>会话控制与机制<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<h1>会话控制与管理<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<section id="id2">
+<h2>为什么需要会话<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>在之前的教程中，我们编写的事件处理函数，本质上都以&quot;请求——响应&quot;的模式工作。每当一个事件触发处理过程，处理函数开始执行、产生结果，随即结束退出。每次交互彼此独立，处理函数不记得上一次发生过什么。</p>
+<p>这种模式对于简单指令来说已经足够：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">send_text</span><span class="p">,</span> <span class="n">on_start_match</span>
+
+<span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.ping&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ping</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;pong!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>但考虑更复杂的交互情景——用户希望与机器人进行<strong>多轮、步骤式的对话</strong>。例如查询天气：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>用户：天气
+Bot：输入您想要查询的城市哦，亲~
+用户：北京
+Bot：想要查看多少天的天气预报呢？
+用户：7
+Bot：为您查询中，请稍后...
+    查询结果为：
+    （此处省略结果）
+    如果您对服务满意，请给我们 5 星好评哦 ^ ^
+</pre></div>
+</div>
+<p>会话正是为了解决这些问题而设计的。它把这些复杂性封装在内部，让你用自然的线性代码风格来编写多轮交互。</p>
+<section id="id3">
+<h3>会话能做什么<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<p>何时需要使用会话？如下：</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>场景</p></th>
+<th class="head"><p>是否使用会话</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>单次命令响应（<code class="docutils literal notranslate"><span class="pre">.ping</span></code> → <code class="docutils literal notranslate"><span class="pre">pong!</span></code>）</p></td>
+<td><p>不需要</p></td>
+</tr>
+<tr class="row-odd"><td><p>多轮交互（问答式填写、步骤式引导）</p></td>
+<td><p>强烈推荐</p></td>
+</tr>
+<tr class="row-even"><td><p>需要跨事件记住信息（计数器、表单）</p></td>
+<td><p>推荐</p></td>
+</tr>
+<tr class="row-odd"><td><p>纯一次性事件处理（日志、过滤）</p></td>
+<td><p>不需要</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>下面是不使用会话实现交互的情形（需要手动管理状态和事件匹配）：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 不使用会话实现查天气：需要手写大量样板代码</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_text</span><span class="p">,</span> <span class="n">send_text</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextEvent</span>
+
+<span class="c1"># 需要全局字典来存储状态</span>
+<span class="n">user_states</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">LOCK</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+<span class="n">user_lock</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">query_weather</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">TextEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">user_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">user_id</span>
+    
+    <span class="k">async</span> <span class="k">with</span> <span class="n">LOCK</span><span class="p">:</span>
+        <span class="n">user_lock</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">())</span>
+    <span class="n">ulock</span> <span class="o">=</span> <span class="n">user_lock</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span>
+
+    <span class="c1"># 手动判断状态</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">ulock</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">user_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_states</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;天气&quot;</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;请输入要查询的城市：&quot;</span><span class="p">)</span>
+                <span class="n">user_states</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+            <span class="k">return</span>
+    
+    <span class="k">async</span> <span class="k">with</span> <span class="n">ulock</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">user_states</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">state</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;请输入要查询的天数：&quot;</span><span class="p">)</span>
+            <span class="n">state</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="k">elif</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">city</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span>
+            <span class="n">days</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">do_query</span><span class="p">(</span><span class="n">city</span><span class="p">,</span> <span class="n">days</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;查询结果：</span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">user_states</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span>  <span class="c1"># 手动清理</span>
+            <span class="k">del</span> <span class="n">user_lock</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>这是多么的繁琐：维护状态、并发安全的代码和业务逻辑已经混成一坨了。</p>
+</section>
+</section>
+<section id="id4">
+<h2>快速上手：五分钟学会会话<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<p>让我们回到刚才的这个需求，看看使用会话的写法：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">on_text</span><span class="p">,</span> <span class="n">send_text</span><span class="p">,</span> <span class="n">Reflect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextEvent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">suspend</span><span class="p">,</span> <span class="n">DefaultRule</span><span class="p">,</span> <span class="n">enter_session</span>
+
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">query_weather</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">TextEvent</span><span class="p">,</span> <span class="n">Reflect</span><span class="p">()])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;天气&quot;</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">DefaultRule</span><span class="p">()):</span>
+        <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;请输入要查询的城市：&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">auto_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">city</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+
+        <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;请输入要查询的天数：&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">auto_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">days</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">do_query</span><span class="p">(</span><span class="n">city</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;查询结果：</span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>你可能注意到了：不需要额外变量来控制状态和保证并发安全。这是因为 <a class="reference internal" href="../api/melobot.session.html#melobot.session.enter_session" title="melobot.session.enter_session"><code class="xref py py-func docutils literal notranslate"><span class="pre">enter_session()</span></code></a> 创建了一个安全的异步上下文。下面我们来逐一深入了解这些组件。</p>
+</section>
+<section id="id5">
+<h2>会话规则：决定&quot;谁&quot;能加入会话<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p>会话规则（<a class="reference internal" href="../api/melobot.session.html#melobot.session.Rule" title="melobot.session.Rule"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rule</span></code></a>）定义了<strong>什么样的事件可以继续当前会话</strong>。当会话暂停后，bot 会收到来自四面八方的各种事件——只有那些通过了规则判断的事件，才能唤醒这个会话。</p>
+<p>最常用的规则是 <a class="reference internal" href="../api/melobot.session.html#melobot.session.DefaultRule" title="melobot.session.DefaultRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultRule</span></code></a>。它通过比较事件的 <code class="docutils literal notranslate"><span class="pre">scope</span></code> 属性来做判断。以 OneBot v11 为例，<code class="docutils literal notranslate"><span class="pre">scope</span></code> 被设为 <code class="docutils literal notranslate"><span class="pre">(群组ID</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">用户ID)</span></code> 二元组——同一群聊或同一私聊的事件拥有相同的 <code class="docutils literal notranslate"><span class="pre">scope</span></code>，因而可以进入同一个会话。</p>
+<p>这就是为什么在上面的查天气示例中，同一群聊中不同用户发送的消息不会互相干扰——因为 <code class="docutils literal notranslate"><span class="pre">scope</span></code> 不同，会话不会匹配。</p>
+<section id="id6">
+<h3>使用默认会话规则<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<p>有两种等价的方式使用 <a class="reference internal" href="../api/melobot.session.html#melobot.session.DefaultRule" title="melobot.session.DefaultRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultRule</span></code></a>：</p>
+<p><strong>方式一：直接使用 enter_session</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@on_text</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">DefaultRule</span><span class="p">()):</span>
+        <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;你好！在接下来的 30 秒内，我会记住你说的话。&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;你的第二句话是：</span><span class="si">{</span><span class="n">session</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>方式二：使用 legacy_session 快捷参数</strong></p>
+<p>文本事件绑定方法（<a class="reference internal" href="../api/melobot.handle.html#melobot.handle.on_text" title="melobot.handle.on_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_text()</span></code></a>、<a class="reference internal" href="../api/melobot.handle.html#melobot.handle.on_start_match" title="melobot.handle.on_start_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">on_start_match()</span></code></a> 等）提供了 <code class="docutils literal notranslate"><span class="pre">legacy_session</span></code> 参数，设为 <code class="docutils literal notranslate"><span class="pre">True</span></code> 相当于自动使用 <a class="reference internal" href="../api/melobot.session.html#melobot.session.DefaultRule" title="melobot.session.DefaultRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultRule</span></code></a> 进入会话：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@on_text</span><span class="p">(</span><span class="n">legacy_session</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">TextEvent</span><span class="p">,</span> <span class="n">Reflect</span><span class="p">()])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;查询&quot;</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;请输入您的学号：&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">legacy_session=True</span></code> 是最便捷的写法，适合绝大多数使用场景。</p>
+</section>
+<section id="id7">
+<h3>自定义规则<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<p>当 <a class="reference internal" href="../api/melobot.session.html#melobot.session.DefaultRule" title="melobot.session.DefaultRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultRule</span></code></a> 不够用的时候，melobot 支持两种方式自定义规则。</p>
+<section id="rule-new">
+<h4>Rule.new() 工厂方法<a class="headerlink" href="#rule-new" title="Link to this heading">¶</a></h4>
+<p>适合简单的比较逻辑。提供一个接收两个事件、返回布尔值的函数即可：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
+
+<span class="c1"># 规则：只有来自同一用户的事件才匹配</span>
+<span class="n">same_user_rule</span> <span class="o">=</span> <span class="n">Rule</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">:</span> <span class="n">e1</span><span class="o">.</span><span class="n">user_id</span> <span class="o">==</span> <span class="n">e2</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span>
+
+<span class="c1"># 规则：只有文本内容完全相同的才匹配</span>
+<span class="n">same_text_rule</span> <span class="o">=</span> <span class="n">Rule</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">:</span> <span class="p">(</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">e2</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">e1</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="n">e2</span><span class="o">.</span><span class="n">text</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>然后像使用 <a class="reference internal" href="../api/melobot.session.html#melobot.session.DefaultRule" title="melobot.session.DefaultRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultRule</span></code></a> 一样使用它们：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">same_user_rule</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;同用户会话已开启~&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="rule">
+<h4>继承 Rule 类<a class="headerlink" href="#rule" title="Link to this heading">¶</a></h4>
+<p>当判断逻辑比较复杂，或者需要初始化一些参数时，继承 <a class="reference internal" href="../api/melobot.session.html#melobot.session.Rule" title="melobot.session.Rule"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rule</span></code></a> 类更合适。你需要实现 <a class="reference internal" href="../api/melobot.session.html#melobot.session.Rule.compare" title="melobot.session.Rule.compare"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compare()</span></code></a> 方法或 <a class="reference internal" href="../api/melobot.session.html#melobot.session.Rule.compare_with" title="melobot.session.Rule.compare_with"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compare_with()</span></code></a> 方法，二选一即可：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">KeywordSessionRule</span><span class="p">(</span><span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;关键词会话规则，包含特定关键词的事件才能继续会话&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span> <span class="o">=</span> <span class="n">keywords</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">compare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e1</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span> <span class="n">e2</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        返回 False，则认为新事件 e2 与旧事件 e1 不在同一会话</span>
+<span class="sd">        否则认为在同一会话中</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 基本条件：同一用户</span>
+        <span class="k">if</span> <span class="n">e1</span><span class="o">.</span><span class="n">user_id</span> <span class="o">!=</span> <span class="n">e2</span><span class="o">.</span><span class="n">user_id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># 关键词匹配：新事件必须包含任一关键词</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">e2</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">e2</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">kw</span> <span class="ow">in</span> <span class="n">t2</span> <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>使用：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">help_rule</span> <span class="o">=</span> <span class="n">KeywordSessionRule</span><span class="p">([</span><span class="s2">&quot;帮助&quot;</span><span class="p">,</span> <span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="s2">&quot;说明&quot;</span><span class="p">])</span>
+
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">helper</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">help_rule</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;进入帮助会话。你可以输入&quot;</span><span class="n">帮助</span> <span class="n">xxxxx</span><span class="s2">&quot;继续，或用其他消息退出。&quot;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+                <span class="c1"># 超时则退出循环</span>
+                <span class="k">break</span>
+            <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;继续帮助模式...你说的是：</span><span class="se">\n</span><span class="si">{</span><span class="n">session</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="compare-with">
+<h4>使用 compare_with 访问会话状态<a class="headerlink" href="#compare-with" title="Link to this heading">¶</a></h4>
+<p>如果需要在判断时访问会话当前的状态（例如<a class="reference internal" href="#session-store">会话存储</a>中的数据），实现 <a class="reference internal" href="../api/melobot.session.html#melobot.session.Rule.compare_with" title="melobot.session.Rule.compare_with"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compare_with()</span></code></a> 方法：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rule</span><span class="p">,</span> <span class="n">CompareInfo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">StepAwareRule</span><span class="p">(</span><span class="n">Rule</span><span class="p">[</span><span class="n">Event</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;结合会话状态的规则，不同步骤接受不同类型的事件&quot;&quot;&quot;</span>
+    
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">compare_with</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">CompareInfo</span><span class="p">[</span><span class="n">Event</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># 基本 scope 判断</span>
+        <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">old_event</span><span class="o">.</span><span class="n">scope</span> <span class="o">!=</span> <span class="n">info</span><span class="o">.</span><span class="n">new_event</span><span class="o">.</span><span class="n">scope</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="c1"># 取出已经存在的会话</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">session</span>
+        <span class="c1"># 取出该会话存储的一些信息</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># 第 1 步：只接受文本事件</span>
+            <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">new_event</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># 第 2 步：假设需要图片事件</span>
+            <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">new_event</span><span class="p">,</span> <span class="s1">&#39;is_image&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">info</span><span class="o">.</span><span class="n">new_event</span><span class="o">.</span><span class="n">is_image</span>
+        <span class="k">return</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/melobot.session.html#melobot.session.CompareInfo" title="melobot.session.CompareInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompareInfo</span></code></a> 提供了三个字段：<code class="docutils literal notranslate"><span class="pre">session</span></code>（已存在的会话对象）、<code class="docutils literal notranslate"><span class="pre">old_event</span></code>（该会话当前指向的事件）、<code class="docutils literal notranslate"><span class="pre">new_event</span></code>（待判断的新事件）。</p>
+</section>
+</section>
+</section>
+<section id="id8">
+<h2>会话管理<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
+<section id="id9">
+<h3>进入会话<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
+<p><a class="reference internal" href="../api/melobot.session.html#melobot.session.enter_session" title="melobot.session.enter_session"><code class="xref py py-func docutils literal notranslate"><span class="pre">enter_session()</span></code></a> 是开启一段会话的标准方式。它返回一个异步上下文管理器：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">enter_session</span>
+
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">DefaultRule</span><span class="p">())</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+        <span class="c1"># 在此上下文中，会话处于活跃状态</span>
+        <span class="c1"># 可以使用 suspend()、访问 session.store 等</span>
+        <span class="o">...</span>
+    <span class="c1"># 退出上下文后，会话自动结束</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">enter_session</span></code> 的参数：</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>默认值</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rule</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Rule</span> <span class="pre">|</span> <span class="pre">type[Rule]</span></code></p></td>
+<td><p>无默认值</p></td>
+<td><p>会话规则（或规则类，传入类时会自动实例化）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wait</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>“同一会话”正在运行时，是否等待其变为空闲再进入</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nowait_cb</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Callable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">wait=False</span></code> “同一会话”已经在运行时，执行的回调（同步或异步均可）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">keep</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>退出会话上下文后是否保持会话不销毁（会话不销毁，会话存储也会持续存在）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auto_release</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>暂停后是否自动释放当前事件（一般不需要改动）</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>关于 <code class="docutils literal notranslate"><span class="pre">rule</span></code> 参数</strong>：决定了会话能否在多个处理流/处理结点间<strong>共享</strong>。传递 <code class="docutils literal notranslate"><span class="pre">rule</span></code> 的方式不同，行为也不同：</p>
+<ol class="arabic simple">
+<li><p><strong>传递一个规则对象（实例）</strong>：该规则对象仅用于这一次会话。如果你将同一个规则对象传给多处 <a class="reference internal" href="../api/melobot.session.html#melobot.session.enter_session" title="melobot.session.enter_session"><code class="xref py py-func docutils literal notranslate"><span class="pre">enter_session()</span></code></a> 调用，这些调用就可以进入同一个会话。这是<strong>跨处理流/处理结点共享会话</strong>的基础。</p></li>
+<li><p><strong>传递一个规则类（而非实例）</strong>：melobot 内部会运行无参实例化并将其缓存为单例。如果在多处 <a class="reference internal" href="../api/melobot.session.html#melobot.session.enter_session" title="melobot.session.enter_session"><code class="xref py py-func docutils literal notranslate"><span class="pre">enter_session()</span></code></a> 调用中传递同一个规则类，这些调用同样可以进入同一个会话——因为 melobot 为同一规则类只维护一个单例实例，效果等同于共享同一个规则对象。</p></li>
+</ol>
+<p>由此，有三种推荐的调用规范：</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>场景</p></th>
+<th class="head"><p>推荐写法</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>会话不需要共享，且规则类只在一处使用</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">enter_session(rule=DefaultRule)</span></code></p></td>
+<td><p>传递类对象，单例自动管理</p></td>
+</tr>
+<tr class="row-odd"><td><p>会话不需要共享（通用、安全）</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">enter_session(rule=DefaultRule())</span></code></p></td>
+<td><p>传递实例，即便多处使用也互不影响</p></td>
+</tr>
+<tr class="row-even"><td><p>会话需要在多处共享</p></td>
+<td><p>多处均传同一 <code class="docutils literal notranslate"><span class="pre">rule</span></code> 实例或同一 <code class="docutils literal notranslate"><span class="pre">rule</span></code> 类</p></td>
+<td><p>让 melobot 在多个流/结点间匹配到同一会话</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 规范 a：不需要共享，传递手动实例化的 rule 对象（最安全）</span>
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler1</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">DefaultRule</span><span class="p">()):</span>
+        <span class="o">...</span>
+
+<span class="c1"># 规范 b：不需要共享，且确定 DefaultRule 类只在此处使用</span>
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler2</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">DefaultRule</span><span class="p">):</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 规范 c：需要在多处共享——使用同一个 rule 实例</span>
+<span class="n">shared_rule</span> <span class="o">=</span> <span class="n">KeywordRule</span><span class="p">([</span><span class="s2">&quot;继续&quot;</span><span class="p">,</span> <span class="s2">&quot;下一步&quot;</span><span class="p">])</span>
+
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler_a</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">shared_rule</span><span class="p">):</span>
+        <span class="o">...</span>
+
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler_b</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">shared_rule</span><span class="p">):</span>
+        <span class="o">...</span>
+<span class="c1"># 或传递同一个 rule 类：</span>
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler_c</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">KeywordRule</span><span class="p">):</span>
+        <span class="o">...</span>
+
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler_d</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">KeywordRule</span><span class="p">):</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>如果不确定，使用规范 a（传递实例）是最安全的选择。</p>
+<p><strong>关于 <code class="docutils literal notranslate"><span class="pre">wait</span></code> 和 <code class="docutils literal notranslate"><span class="pre">nowait_cb</span></code> 参数</strong>：melobot 会自动管理同一规则下的多个并发会话。这对用户是完全透明的——你不需要写任何并发控制代码。举个例子：假设你有一个&quot;猜数字&quot;的会话处理函数。在同一个群聊中，用户 A 先发起了&quot;猜数字&quot;，然后用户 B 也发起了&quot;猜数字&quot;。因为 <a class="reference internal" href="../api/melobot.session.html#melobot.session.DefaultRule" title="melobot.session.DefaultRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultRule</span></code></a> 会匹配 scope，而 scope 在 OneBot v11 中包含用户 ID，所以 A 和 B 的 scope 不同，<strong>会创建两个独立的会话</strong>。这两个会话并发运行，互不干扰。</p>
+<p>但如果由于某种原因，两个 scope 相同的事件几乎同时到来（例如 A 快速发起两次“猜数字”），默认情况下后来的事件会排队等待（<code class="docutils literal notranslate"><span class="pre">wait=True</span></code>）。如果你希望冲突时通知用户，使用 <code class="docutils literal notranslate"><span class="pre">wait=False</span></code> + <code class="docutils literal notranslate"><span class="pre">nowait_cb</span></code> 的组合：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">busy_notify</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;您有一个正在进行的操作，请先等待它完成～&quot;</span><span class="p">)</span>
+
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="nd">@ctx</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">enter_session</span><span class="p">,</span> <span class="n">DefaultRule</span><span class="p">(),</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nowait_cb</span><span class="o">=</span><span class="n">busy_notify</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;会话已开启。&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这样就不会运行重复的“猜数字”，<code class="docutils literal notranslate"><span class="pre">busy_notify</span></code> 回调会被执行。而第二次“猜数字”事件不会被这一会话接管，它将继续向低优先级的处理流传播。</p>
+<p><strong>关于 <code class="docutils literal notranslate"><span class="pre">keep</span></code> 参数</strong>：默认情况下（<code class="docutils literal notranslate"><span class="pre">keep=False</span></code>），退出 <a class="reference internal" href="../api/melobot.session.html#melobot.session.enter_session" title="melobot.session.enter_session"><code class="xref py py-func docutils literal notranslate"><span class="pre">enter_session()</span></code></a> 上下文后会话自动结束。如果你希望会话在退出上下文后继续存活（例如等待其他处理流来接管），设置 <code class="docutils literal notranslate"><span class="pre">keep=True</span></code>。之后需要手动调用 <a class="reference internal" href="../api/melobot.session.html#melobot.session.Session.stop_keep" title="melobot.session.Session.stop_keep"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stop_keep()</span></code></a> 来允许会话销毁：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">enter_session</span><span class="p">(</span><span class="n">rule</span><span class="o">=</span><span class="n">DefaultRule</span><span class="p">(),</span> <span class="n">keep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;会话已开启。即使退出也会保持。&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+    <span class="c1"># 退出上下文后会话继续存在</span>
+
+<span class="c1"># 之后在某个时刻必须手动结束，否则会造成资源泄漏！</span>
+<span class="n">session</span><span class="o">.</span><span class="n">stop_keep</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">keep=True</span></code> 的典型使用场景是<strong>跨处理流共享会话</strong>。假设你有两个不同的处理流——一个负责收集用户的查询条件，另一个负责处理用户的确认操作。通过 <code class="docutils literal notranslate"><span class="pre">keep=True</span></code>，第一个处理流创建的会话可以在退出上下文后保持活跃，第二个处理流被触发时可以直接匹配到这个会话，继续同一轮交互。</p>
+<p><strong>关于 <code class="docutils literal notranslate"><span class="pre">auto_release</span></code> 参数</strong>：默认（<code class="docutils literal notranslate"><span class="pre">auto_release=True</span></code>）会在会话暂停后自动释放事件，允许事件被更低优先级的处理流使用。如果你的会话在暂停后，不希望刚才的事件被低优先级的处理流使用，那么请设置为 <code class="docutils literal notranslate"><span class="pre">False</span></code>，并在合适的时候使用 <a class="reference internal" href="../api/melobot.session.html#melobot.session.Session.release" title="melobot.session.Session.release"><code class="xref py py-meth docutils literal notranslate"><span class="pre">release()</span></code></a> 释放对事件的控制权：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 释放此会话上所有历经事件的控制权，它们将可以向低优先级传播</span>
+<span class="n">session</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<span class="c1"># 释放一个或多个历经的事件：</span>
+<span class="n">session</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>忘记释放控制权将导致资源泄漏！并可能导致低等级处理流的饥饿。</p>
+</section>
+<section id="id10">
+<h3>进入会话（精简版）<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
+<p>对于典型的，进行简单判断后再进入会话的精简写法：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_if</span><span class="p">,</span> <span class="n">ctx</span>
+
+<span class="c1"># 也可以替换为 @node</span>
+<span class="nd">@on_text</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="c1"># on_text 保证进行判断是一定是 TextEvent</span>
+<span class="c1"># 所以下面可以安全的取 text 属性</span>
+<span class="nd">@_if</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;xxx&quot;</span><span class="p">))</span>
+<span class="c1"># 下面不要使用 @ctx(lambda: enter_session(DefaultRule()))</span>
+<span class="c1"># 这样每次都会创建一个新规则，是不对的！</span>
+<span class="c1"># 而使用 partial 会直接缓存参数，因此不会重复创建规则</span>
+<span class="nd">@ctx</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">enter_session</span><span class="p">,</span> <span class="n">DefaultRule</span><span class="p">()))</span>
+<span class="c1"># 但是如果你已经有一个 rule 对象，那么这样写是可以的：</span>
+<span class="c1"># @ctx(lambda: enter_session(rule))</span>
+<span class="k">async</span> <span class="k">with</span> <span class="n">_</span><span class="p">(</span><span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>当然 <code class="xref py py-func docutils literal notranslate"><span class="pre">_if()</span></code> 装饰器也可以在 <a class="reference internal" href="../api/melobot.utils.html#melobot.utils.ctx" title="melobot.utils.ctx"><code class="xref py py-func docutils literal notranslate"><span class="pre">ctx()</span></code></a> 之下，这取决于你的需求。</p>
+</section>
+<section id="id11">
+<h3>暂停等待<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
+<p><a class="reference internal" href="../api/melobot.session.html#melobot.session.suspend" title="melobot.session.suspend"><code class="xref py py-func docutils literal notranslate"><span class="pre">suspend()</span></code></a> 是会话中最核心的操作——将当前处理暂停，等待匹配的新事件来唤醒：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">suspend</span>
+
+<span class="c1"># 无限期暂停（一直等到匹配事件）</span>
+<span class="k">await</span> <span class="n">suspend</span><span class="p">()</span>
+
+<span class="c1"># 限时暂停（超时返回 False）</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;等待超时，操作已取消。&quot;</span><span class="p">)</span>
+    <span class="k">return</span>
+
+<span class="c1"># 超时自动停止处理流</span>
+<span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">auto_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># 如果超时，后续代码不会执行</span>
+</pre></div>
+</div>
+</section>
+<section id="session-store">
+<span id="id12"></span><h3>会话存储<a class="headerlink" href="#session-store" title="Link to this heading">¶</a></h3>
+<p><a class="reference internal" href="../api/melobot.session.html#melobot.session.SessionStore" title="melobot.session.SessionStore"><code class="xref any py py-class docutils literal notranslate"><span class="pre">SessionStore</span></code></a> 是会话生命周期内的键值存储。它就是一个字典（带有一个额外的便捷方法 <code class="docutils literal notranslate"><span class="pre">set</span></code>），用于在暂停/恢复之间传递数据：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionStore</span>
+
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="nd">@ctx</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">enter_session</span><span class="p">,</span> <span class="n">DefaultRule</span><span class="p">()))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">store</span><span class="p">:</span> <span class="n">SessionStore</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 两种写入方式等价</span>
+    <span class="n">store</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">store</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="s2">&quot;Alice&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 读取</span>
+    <span class="n">current_step</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span>
+    
+    <span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="c1"># 恢复后 store 中的数据依然存在</span>
+    <span class="n">store</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>常见的用法包括：</p>
+<ul class="simple">
+<li><p>保存多步操作中的中间输入（像个&quot;便签本&quot;）</p></li>
+<li><p>记录当前处于哪个步骤</p></li>
+<li><p>暂存需要在后续步骤中使用的计算结果</p></li>
+<li><p>保存状态信息，供会话规则进行“比较”时使用</p></li>
+</ul>
+<p>会话存储的生命周期与会话一致：进入会话时创建，会话结束时销毁。不同会话之间的存储完全独立，互不影响。</p>
+</section>
+<section id="id13">
+<h3>动态属性与动态函数<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h3>
+<p>除了通过 <code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">with</span> <span class="pre">enter_session(...)</span> <span class="pre">as</span> <span class="pre">session</span></code> 获取会话对象，melobot 还提供了上下文感知的快捷方式：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mb_session</span>
+
+<span class="nd">@on_text</span><span class="p">()</span>
+<span class="nd">@ctx</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">enter_session</span><span class="p">,</span> <span class="n">DefaultRule</span><span class="p">()))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 动态属性——始终反映当前上下文的最新值</span>
+    <span class="n">cur_session</span> <span class="o">=</span> <span class="n">mb_session</span><span class="o">.</span><span class="n">session</span>      <span class="c1"># 当前 Session 对象</span>
+    <span class="n">cur_store</span> <span class="o">=</span> <span class="n">mb_session</span><span class="o">.</span><span class="n">s_store</span>        <span class="c1"># 当前 SessionStore</span>
+    <span class="n">cur_rule</span> <span class="o">=</span> <span class="n">mb_session</span><span class="o">.</span><span class="n">rule</span>            <span class="c1"># 当前 Rule 对象</span>
+    
+    <span class="c1"># 也可以用函数形式</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_session</span><span class="p">,</span> <span class="n">get_session_store</span><span class="p">,</span> <span class="n">get_rule</span>
+    <span class="n">cur_session</span> <span class="o">=</span> <span class="n">get_session</span><span class="p">()</span>           <span class="c1"># 等价于 mb_session.session</span>
+    <span class="n">cur_store</span> <span class="o">=</span> <span class="n">get_session_store</span><span class="p">()</span>       <span class="c1"># 等价于 mb_session.s_store</span>
+    <span class="n">cur_rule</span> <span class="o">=</span> <span class="n">get_rule</span><span class="p">()</span>                 <span class="c1"># 等价于 mb_session.rule</span>
+</pre></div>
+</div>
+<p>这些动态属性会自动更新。但注意它们只在会话上下文中可用，在模块顶级 <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">melobot.session</span> <span class="pre">import</span> <span class="pre">session</span></code> 会失败。</p>
+<p>以及不要赋值给新变量，新变量显然不会自动更新。</p>
+</section>
+</section>
+<section id="id14">
+<h2>会话中的依赖注入<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h2>
+<section id="id15">
+<h3>注入会话组件<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h3>
+<p>以下类型可以在类型注解中用于依赖注入：</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>注入类型</p></th>
+<th class="head"><p>获取的值</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/melobot.session.html#melobot.session.Session" title="melobot.session.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a></p></td>
+<td><p>当前会话对象</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/melobot.session.html#melobot.session.SessionStore" title="melobot.session.SessionStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionStore</span></code></a></p></td>
+<td><p>当前会话存储</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/melobot.session.html#melobot.session.Rule" title="melobot.session.Rule"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rule</span></code></a></p></td>
+<td><p>当前会话的规则对象</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>示例：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span><span class="p">,</span> <span class="n">SessionStore</span>
+
+<span class="nd">@ctx</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">enter_session</span><span class="p">,</span> <span class="n">DefaultRule</span><span class="p">()))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">store</span><span class="p">:</span> <span class="n">SessionStore</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">Rule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="id16">
+<h3>反射式事件注入<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h3>
+<p><a class="reference internal" href="../api/melobot.di.html#melobot.di.Reflect" title="melobot.di.Reflect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Reflect()</span></code></a> 创建了一个<strong>反射代理</strong>。从使用者的角度看，<code class="docutils literal notranslate"><span class="pre">event</span></code> 和普通的事件对象没有区别——访问属性、调用方法都一样。区别在于，每次你访问 <code class="docutils literal notranslate"><span class="pre">event.text</span></code> 时，它都会自动从当前上下文中获取最新的事件对象，然后返回其 <code class="docutils literal notranslate"><span class="pre">text</span></code> 属性。</p>
+<section id="id17">
+<h4>注意事项<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ✅ 直接访问属性和调用方法是安全的</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+<span class="n">event</span><span class="o">.</span><span class="n">some_method</span><span class="p">()</span>
+
+<span class="c1"># ⚠️ 进行 isinstance 判断时，需要获取原始对象</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageEvent</span>
+<span class="n">is_msg</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">__origin__</span><span class="p">,</span> <span class="n">MessageEvent</span><span class="p">)</span>
+
+<span class="c1"># ⚠️ 传给不了解反射机制的函数时，也需要原始对象</span>
+<span class="n">some_external_func</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">__origin__</span><span class="p">)</span>
+
+<span class="c1"># ⚠️ 不要对反射对象使用 == 比较或作为字典键</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="get-session-arg-doc">
+<span id="id18"></span><h3>注入会话存储的值<a class="headerlink" href="#get-session-arg-doc" title="Link to this heading">¶</a></h3>
+<p>如果你的处理流中，前几个结点已经将数据存入了 <a class="reference internal" href="../api/melobot.session.html#melobot.session.SessionStore" title="melobot.session.SessionStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionStore</span></code></a>，后续结点可以直接通过 <a class="reference internal" href="../api/melobot.session.html#melobot.session.get_session_arg" title="melobot.session.get_session_arg"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_session_arg()</span></code></a> 将指定键的值注入为参数：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_session_arg</span>
+
+<span class="nd">@node</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">step3</span><span class="p">(</span>
+    <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">get_session_arg</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
+    <span class="n">user_age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">get_session_arg</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 相当于自动执行了 store[&quot;name&quot;] 和 store[&quot;age&quot;]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;处理用户: </span><span class="si">{</span><span class="n">user_name</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">user_age</span><span class="si">}</span><span class="s2"> 岁&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/melobot.session.html#melobot.session.get_session_arg" title="melobot.session.get_session_arg"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_session_arg()</span></code></a> 让依赖注入系统从当前会话存储中查找指定键。如果键不存在，依赖注入失败，结点被自动跳过——<strong>这又是一种&quot;区分调用&quot;的实现方式</strong>。</p>
+<p>需要注意的是，<a class="reference internal" href="../api/melobot.session.html#melobot.session.get_session_arg" title="melobot.session.get_session_arg"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_session_arg()</span></code></a> 在进入函数前取值。如果需要最新的值，从暂停中恢复后应该从会话存储手动再取值：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@node</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">store</span><span class="p">:</span> <span class="n">SessionStore</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">store</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">await</span> <span class="n">suspend</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="c1"># 恢复后手动获取</span>
+    <span class="n">current_step</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/melobot.session.html#melobot.session.get_session_arg" title="melobot.session.get_session_arg"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_session_arg()</span></code></a> 函数的其他参数类似于 <a class="reference internal" href="../api/melobot.handle.html#melobot.handle.get_flow_arg" title="melobot.handle.get_flow_arg"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_flow_arg()</span></code></a>，参考：<a class="reference internal" href="process_flow.html#get-flow-arg-doc"><span class="std std-ref">对应用法</span></a></p>
+</section>
+<section id="id19">
+<h3>依赖注入可用情况<a class="headerlink" href="#id19" title="Link to this heading">¶</a></h3>
+<p>下表总结了会话不同阶段各类依赖注入的可用情况：</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>阶段</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">Session</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">SessionStore</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">Rule</span></code></p></th>
+<th class="head"><p>事件（常规注入）</p></th>
+<th class="head"><p>事件（Reflect）</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">get_session_arg</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>进入会话前</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-odd"><td><p>会话运行期</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p>挂起中</p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+</tr>
+<tr class="row-odd"><td><p>恢复后</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>仍是旧事件</p></td>
+<td><p>自动指向新事件</p></td>
+<td><p>仍是挂起前的值</p></td>
+</tr>
+<tr class="row-even"><td><p>退出会话后</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>最需要留意的是 <strong>事件（常规注入）和事件（Reflect）</strong> 在恢复后的差异——这就是为什么在会话中使用事件时，几乎总要搭配 <a class="reference internal" href="../api/melobot.di.html#melobot.di.Reflect" title="melobot.di.Reflect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Reflect</span></code></a>。</p>
+</section>
+</section>
+<section id="id20">
+<h2>常见问题与注意事项<a class="headerlink" href="#id20" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>不能在会话外使用 suspend</strong>：<a class="reference internal" href="../api/melobot.session.html#melobot.session.suspend" title="melobot.session.suspend"><code class="xref py py-func docutils literal notranslate"><span class="pre">suspend()</span></code></a> 只能在 <a class="reference internal" href="../api/melobot.session.html#melobot.session.enter_session" title="melobot.session.enter_session"><code class="xref py py-func docutils literal notranslate"><span class="pre">enter_session()</span></code></a> 上下文管理器内调用。如果在会话外调用，会因为找不到会话上下文而抛出异常</p></li>
+<li><p><strong>不能嵌套会话</strong>：melobot 不支持在已存在的会话内再创建新会话。这会抛出异常。</p></li>
+</ol>
+<section id="check-match-parse">
+<h3>与事件预处理（check/match/parse）的关系<a class="headerlink" href="#check-match-parse" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">legacy_session=True</span></code> 与 <code class="docutils literal notranslate"><span class="pre">checker</span></code>/<code class="docutils literal notranslate"><span class="pre">matcher</span></code>/<code class="docutils literal notranslate"><span class="pre">parser</span></code> 的执行顺序为：预处理先行，会话后创建。因此检查器、匹配器和解析器<strong>不能使用 <a class="reference internal" href="../api/melobot.session.html#melobot.session.suspend" title="melobot.session.suspend"><code class="xref py py-func docutils literal notranslate"><span class="pre">suspend()</span></code></a> 或访问会话存储</strong>。</p>
+<p>如需在这些阶段使用会话特性，应手动使用 <a class="reference internal" href="../api/melobot.utils.html#melobot.utils.ctx" title="melobot.utils.ctx"><code class="xref py py-func docutils literal notranslate"><span class="pre">ctx()</span></code></a> 和 <a class="reference internal" href="../api/melobot.session.html#melobot.session.enter_session" title="melobot.session.enter_session"><code class="xref py py-func docutils literal notranslate"><span class="pre">enter_session()</span></code></a> 将会话创建提前，或将预处理逻辑合并到处理函数内部。</p>
+</section>
+</section>
+<section id="id21">
+<h2>小结<a class="headerlink" href="#id21" title="Link to this heading">¶</a></h2>
+<p>本篇介绍了 melobot 的会话控制系统，核心要点如下：</p>
+<ul class="simple">
+<li><p><strong>为什么需要会话</strong>——多轮交互需要&quot;状态保持&quot;和&quot;异步等待&quot;，会话将这些复杂性封装为简单的 API</p></li>
+<li><p><strong>会话规则</strong>——<a class="reference internal" href="../api/melobot.session.html#melobot.session.DefaultRule" title="melobot.session.DefaultRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultRule</span></code></a> 满足大多数需求（通过 <code class="docutils literal notranslate"><span class="pre">legacy_session=True</span></code> 一键开启）；特殊需求时通过 <a class="reference internal" href="../api/melobot.session.html#melobot.session.Rule.new" title="melobot.session.Rule.new"><code class="xref py py-meth docutils literal notranslate"><span class="pre">new()</span></code></a> 或继承 <a class="reference internal" href="../api/melobot.session.html#melobot.session.Rule" title="melobot.session.Rule"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rule</span></code></a> 自定义规则</p></li>
+<li><p><strong>会话管理</strong>——<a class="reference internal" href="../api/melobot.session.html#melobot.session.enter_session" title="melobot.session.enter_session"><code class="xref py py-func docutils literal notranslate"><span class="pre">enter_session()</span></code></a> 进入会话、<a class="reference internal" href="../api/melobot.session.html#melobot.session.suspend" title="melobot.session.suspend"><code class="xref py py-func docutils literal notranslate"><span class="pre">suspend()</span></code></a> 暂停等待、<a class="reference internal" href="../api/melobot.session.html#melobot.session.SessionStore" title="melobot.session.SessionStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionStore</span></code></a> 存储中间数据，三者配合即可实现任意复杂的交互流程</p></li>
+<li><p><strong>依赖注入</strong>——在会话中使用 <a class="reference internal" href="../api/melobot.di.html#melobot.di.Reflect" title="melobot.di.Reflect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Reflect()</span></code></a> 注入事件是<strong>最关键的技巧</strong>（确保挂起恢复后事件自动更新）；<a class="reference internal" href="../api/melobot.session.html#melobot.session.get_session_arg" title="melobot.session.get_session_arg"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_session_arg()</span></code></a> 可将存储值注入为参数，简化代码</p></li>
+</ul>
+<p>会话控制使得 melobot 的处理流从&quot;无状态&quot;的单次处理跃升到&quot;有状态&quot;的多轮交互。结合依赖注入和处理流控制，你可以实现各种形式的交互式对话逻辑——从简单的问答到复杂的多分支交互。</p>
+<p>下一篇将介绍：<a class="reference internal" href="plugin_usage.html"><span class="doc std std-doc">插件系统与进阶用法</span></a>。</p>
+</section>
 </section>
 
         </article>
@@ -340,7 +1022,7 @@
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">插件机制与管理</div>
+                <div class="title">插件系统与进阶用法</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -380,13 +1062,69 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">会话控制与管理</a><ul>
+<li><a class="reference internal" href="#id2">为什么需要会话</a><ul>
+<li><a class="reference internal" href="#id3">会话能做什么</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id4">快速上手：五分钟学会会话</a></li>
+<li><a class="reference internal" href="#id5">会话规则：决定&quot;谁&quot;能加入会话</a><ul>
+<li><a class="reference internal" href="#id6">使用默认会话规则</a></li>
+<li><a class="reference internal" href="#id7">自定义规则</a><ul>
+<li><a class="reference internal" href="#rule-new">Rule.new() 工厂方法</a></li>
+<li><a class="reference internal" href="#rule">继承 Rule 类</a></li>
+<li><a class="reference internal" href="#compare-with">使用 compare_with 访问会话状态</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id8">会话管理</a><ul>
+<li><a class="reference internal" href="#id9">进入会话</a></li>
+<li><a class="reference internal" href="#id10">进入会话（精简版）</a></li>
+<li><a class="reference internal" href="#id11">暂停等待</a></li>
+<li><a class="reference internal" href="#session-store">会话存储</a></li>
+<li><a class="reference internal" href="#id13">动态属性与动态函数</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id14">会话中的依赖注入</a><ul>
+<li><a class="reference internal" href="#id15">注入会话组件</a></li>
+<li><a class="reference internal" href="#id16">反射式事件注入</a><ul>
+<li><a class="reference internal" href="#id17">注意事项</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#get-session-arg-doc">注入会话存储的值</a></li>
+<li><a class="reference internal" href="#id19">依赖注入可用情况</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id20">常见问题与注意事项</a><ul>
+<li><a class="reference internal" href="#check-match-parse">与事件预处理（check/match/parse）的关系</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id21">小结</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=dd0888fc"></script>
+</div><script src="../_static/documentation_options.js?v=738234d0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

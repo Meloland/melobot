@@ -24,5 +24,5 @@ melobot 元信息
 .. autoclass:: melobot.MetaInfo
     :exclude-members: __init__
 
-.. autoclass:: melobot._meta.VersionInfo
+.. autoclass:: melobot.VersionInfo
     :exclude-members: __new__

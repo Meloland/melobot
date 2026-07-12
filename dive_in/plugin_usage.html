@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="OneBot 相关" href="../ob_refer/index.html" /><link rel="prev" title="会话控制与机制" href="session_control.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="bot 对象与相关接口" href="bot.html" /><link rel="prev" title="会话控制与管理" href="session_control.html" />
         <link rel="canonical" href="/melobot/dive_in/plugin_usage.html" />
 
     <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>插件机制与管理 - melobot 3.4.0</title>
+        <title>插件系统与进阶用法 - melobot 3.4.0.post19.dev0+6484821</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -171,7 +171,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.4.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.4.0.post19.dev0+6484821</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -192,7 +192,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.4.0</span>
+  <span class="sidebar-brand-text">melobot 3.4.0.post19.dev0+6484821</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -223,8 +223,17 @@
 <li class="toctree-l2"><a class="reference internal" href="adapter_extra.html">适配器层其他组件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="process_flow.html">事件处理流与机制</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dependency_injection.html">依赖注入与特性</a></li>
-<li class="toctree-l2"><a class="reference internal" href="session_control.html">会话控制与机制</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">插件机制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="session_control.html">会话控制与管理</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">插件系统与进阶用法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bot.html">bot 对象与相关接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="log.html">日志组件与日志修补</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">实用组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="typ.html">类型工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="import_lazy.html">导入与惰性加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="context.html">上下文管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta.html">元信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html">CLI 界面</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp.html">多进程支持</a></li>
 </ul>
 </li>
 </ul>
@@ -321,13 +330,654 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
           <section id="id1">
-<h1>插件机制与管理<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<h1>插件系统与进阶用法<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<p>插件系统是 melobot 实现模块化扩展的核心机制。通过插件，你可以将 bot 的不同功能拆分到独立的目录中，实现高内聚、低耦合的代码组织。但更重要的是，melobot 的插件系统还提供了一套<strong>安全的跨插件通信机制</strong>，让你在享受模块化带来的便利时，不会陷入依赖地狱。</p>
+<div class="note admonition">
+<p class="admonition-title">关于&quot;插件&quot;术语</p>
+<p>在 melobot 中，&quot;插件&quot;一词默认指 <strong>melobot 专用插件</strong>——它是一个包含 <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code> 文件的目录，而不是广义上的 Python 包或模块。本文除非特别说明，否则&quot;插件&quot;均指 melobot 插件。</p>
+</div>
+<div class="note admonition">
+<p class="admonition-title">相关知识</p>
+<p>如果你不知道与插件相关的基本用法，建议先浏览：<a class="reference internal" href="../intro/use-plugin.html"><span class="doc std std-doc">插件的基本知识</span></a></p>
+</div>
+<section id="id2">
+<h2>插件的两种形态<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>melobot 中的插件以两种形态存在：<strong>模块级插件</strong>和<strong>匿名插件</strong>（动态插件）。</p>
+<section id="id3">
+<h3>模块级插件<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<p>模块级插件是最常用、最推荐的插件形式。它对应文件系统中的一个<strong>目录</strong>，该目录下必须包含一个 <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code> 文件作为插件的入口模块。目录名即是插件的名称。</p>
+<p>一个典型的模块级插件目录结构如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>my_plugin/             # 插件目录名（也就是插件名，是插件区分的唯一标志）
+├── __plugin__.py      # 插件入口（必需）
+├── __init__.py        # 自动生成（由 mb pinit 生成）
+├── __init__.pyi       # 自动生成（由 mb pinit 生成）
+├── handlers.py        # 事件处理逻辑
+├── data.py            # 数据相关
+└── utils.py           # 工具函数
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code> 中必须实例化一个 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a>（插件管理器），melobot 通过它来识别和加载插件：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># my_plugin/__plugin__.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginPlanner</span>
+
+<span class="c1"># 同时指定插件版本</span>
+<span class="n">my_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>bot 加载此插件时会动态导入 <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code> 模块，搜索其中的 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a> 实例，并据此构建插件运行时对象。</p>
+<div class="warning admonition">
+<p class="admonition-title">注意</p>
+<p>插件目录中的所有模块互相引用请使用相对导入。</p>
+<p>不要使用绝对导入，绝对导入可能会导致加载错误。具体原因在后续部分会讲解。</p>
+</div>
+</section>
+<section id="id4">
+<h3>匿名插件（动态插件）<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<p>匿名插件不依赖文件系统。直接向 bot 传递一个插件管理器实例即可。它适用于<strong>临时构建、测试，或需要在代码中动态生成插件</strong>的场景：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">PluginPlanner</span>
+
+<span class="n">bot</span> <span class="o">=</span> <span class="n">Bot</span><span class="p">(</span><span class="s2">&quot;my_bot&quot;</span><span class="p">)</span>
+<span class="n">dyn_p</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">)</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">dyn_p</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="tip admonition">
+<p class="admonition-title">选择建议</p>
+<p>对于正式项目，推荐使用<strong>模块级插件</strong>，因为它有清晰的目录结构、支持自动导入、可以生成 <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> 实现优雅的跨插件引用。</p>
+<p>匿名插件适合快速原型、单元测试，或需要在运行时动态组装插件功能的特殊场景。</p>
+</div>
+</section>
+</section>
+<section id="id5">
+<h2>插件管理器<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a> 是插件的&quot;声明中心&quot;，它承载了插件的所有元信息和功能组件，每一个实例代表一个插件。</p>
+<section id="id6">
+<h3>初始化参数<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">version</span></code></p></td>
+<td><p>插件版本号，会写入自动生成的 <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> 中，可供其他插件查询</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">flows</span></code></p></td>
+<td><p>插件初始化后要注册到 bot 的处理流。可先传空，后续通过 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a> 绑定</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">shares</span></code></p></td>
+<td><p>插件对外暴露的共享对象。可先传空，后续通过 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a> 绑定</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">funcs</span></code></p></td>
+<td><p>插件对外暴露的导出函数。可先传空，后续通过 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a> 绑定</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auto_import</span></code></p></td>
+<td><p>导入插件目录下所有 <code class="docutils literal notranslate"><span class="pre">.py</span></code> 模块；也可提供相对路径列表。<strong>对匿名插件无效</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">info</span></code></p></td>
+<td><p>插件的描述性元信息</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id7">
+<h3>插件信息类<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<p><a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginInfo" title="melobot.plugin.PluginInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginInfo</span></code></a> 用于为插件附加描述性信息：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginPlanner</span><span class="p">,</span> <span class="n">PluginInfo</span>
+
+<span class="n">my_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span>
+    <span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+    <span class="n">info</span><span class="o">=</span><span class="n">PluginInfo</span><span class="p">(</span>
+        <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;一个提供天气查询功能的插件&quot;</span><span class="p">,</span>
+        <span class="n">author</span><span class="o">=</span><span class="s2">&quot;username&quot;</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://github.com/username/my_plugin&quot;</span><span class="p">,</span>
+        <span class="n">keywords</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;weather&quot;</span><span class="p">,</span> <span class="s2">&quot;query&quot;</span><span class="p">),</span>
+        <span class="n">docs</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;README.md&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>其他模块可以通过 <code class="docutils literal notranslate"><span class="pre">import</span></code> 直接获取插件的元信息：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">my_plugin</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_plugin</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>   <span class="c1"># &quot;1.0.0&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_plugin</span><span class="o">.</span><span class="n">__author__</span><span class="p">)</span>    <span class="c1"># &quot;username&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_plugin</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>       <span class="c1"># &quot;一个提供天气查询功能的插件&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="use">
+<h3>use() 装饰器<a class="headerlink" href="#use" title="Link to this heading">¶</a></h3>
+<p>除了在构造时传入 <code class="docutils literal notranslate"><span class="pre">flows</span></code>、<code class="docutils literal notranslate"><span class="pre">shares</span></code>、<code class="docutils literal notranslate"><span class="pre">funcs</span></code>，更常见的做法是使用组合式 API（即 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a>）动态绑定：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginPlanner</span><span class="p">,</span> <span class="n">send_text</span><span class="p">,</span> <span class="n">on_start_match</span>
+
+<span class="n">my_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">)</span>
+
+<span class="nd">@my_plugin</span><span class="o">.</span><span class="n">use</span>
+<span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.hi&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">greet</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;你好！&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a> 能自动识别被装饰对象的类型，并最终注册到 bot 中。</p>
+<div class="note admonition">
+<p class="admonition-title">use() 的返回值</p>
+<p><a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner.use" title="melobot.plugin.PluginPlanner.use"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use()</span></code></a> 返回被装饰对象本身，因此你可以继续在别处使用被装饰对象。</p>
+</div>
+</section>
+<section id="id8">
+<h3>自动导入<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<p>模块级插件支持通过 <code class="docutils literal notranslate"><span class="pre">auto_import</span></code> 参数自动加载插件目录下的子模块，无需手动 import：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 导入插件目录下所有 .py 文件</span>
+<span class="n">my_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span> <span class="n">auto_import</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># 只导入指定的模块，相对路径基于插件目录进行计算</span>
+<span class="n">my_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span> <span class="n">auto_import</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;handlers.py&quot;</span><span class="p">,</span> <span class="s2">&quot;utils/compiled_mod.so&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">auto_import=True</span></code> 会递归查找插件目录下所有 <code class="docutils literal notranslate"><span class="pre">.py</span></code> 文件并导入。导入非 <code class="docutils literal notranslate"><span class="pre">.py</span></code> 后缀的模块（如 <code class="docutils literal notranslate"><span class="pre">.pyc</span></code>、<code class="docutils literal notranslate"><span class="pre">.pyd</span></code>、<code class="docutils literal notranslate"><span class="pre">.so</span></code>）或导入指定几个模块，需要手动提供路径列表。</p>
+<p><code class="docutils literal notranslate"><span class="pre">auto_import=True</span></code> 时的模块扩展名优先级由 <a class="reference internal" href="../api/melobot.html#melobot.MODULE_EXTS" title="melobot.MODULE_EXTS"><code class="xref py py-data docutils literal notranslate"><span class="pre">melobot.MODULE_EXTS</span></code></a> 定义。</p>
+<div class="tip admonition">
+<p class="admonition-title">提示</p>
+<p><code class="docutils literal notranslate"><span class="pre">auto_import</span></code> 的主要价值不在于让你少写 <code class="docutils literal notranslate"><span class="pre">import</span></code> 语句。主要作用是可以进行“依赖反转”。</p>
+<p>例如：在 <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code> 中定义插件管理器和流对象，在其他需要的模块中导入就可以使用组合式 API</p>
+</div>
+</section>
+</section>
+<section id="id9">
+<h2>插件加载方法<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<p>bot 对象提供了四种加载插件的方法，覆盖了从单个插件到批量目录加载的各种场景。加载插件完全是同步过程，且多线程不安全。</p>
+<section id="load-plugin">
+<h3>load_plugin()<a class="headerlink" href="#load-plugin" title="Link to this heading">¶</a></h3>
+<p>这是最核心的加载方法，<strong>其他三种方法最终都会调用它</strong>。<code class="docutils literal notranslate"><span class="pre">plugin</span></code> 参数支持四种类型：</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>类型</p></th>
+<th class="head"><p>示例</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner" title="melobot.plugin.PluginPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">PluginPlanner</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bot.load_plugin(my_planner)</span></code></p></td>
+<td><p>匿名插件，直接在代码中构建</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>（可直接导入的模块名）</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bot.load_plugin(&quot;my_plugin&quot;)</span></code></p></td>
+<td><p>作为 Python 模块名导入，遵循 sys.path 搜索</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></a>（路径）</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bot.load_plugin(&quot;./plugins/my_plugin&quot;)</span></code></p></td>
+<td><p>插件目录的路径（相对或绝对）</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://docs.python.org/3/library/types.html#types.ModuleType" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModuleType</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bot.load_plugin(plugin_dir_module)</span></code></p></td>
+<td><p>已导入的模块对象（插件目录对应的模块，不是 <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code> 模块）</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>支持链式调用：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="s2">&quot;plugin_a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="s2">&quot;plugin_b&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="load-plugins">
+<h3>load_plugins()<a class="headerlink" href="#load-plugins" title="Link to this heading">¶</a></h3>
+<p>接收一个可迭代对象，依次调用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_plugin()</span></code></a>。适用于有一批插件需要加载的场景：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span><span class="o">.</span><span class="n">load_plugins</span><span class="p">([</span><span class="s2">&quot;plugin_a&quot;</span><span class="p">,</span> <span class="s2">&quot;./plugin_b&quot;</span><span class="p">,</span> <span class="s2">&quot;/home/user/mb_plugins/plugin_c&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="load-plugins-dir">
+<h3>load_plugins_dir()<a class="headerlink" href="#load-plugins-dir" title="Link to this heading">¶</a></h3>
+<p>扫描指定目录下的所有<strong>子目录</strong>（排除 <code class="docutils literal notranslate"><span class="pre">__pycache__</span></code>），将每个子目录作为插件加载。适合将插件集中存放在某个目录的结构：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>plugins/
+├── weather/
+│   └── __plugin__.py
+├── scheduler/
+│   └── __plugin__.py
+└── admin/
+    └── __plugin__.py
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span><span class="o">.</span><span class="n">load_plugins_dir</span><span class="p">(</span><span class="s2">&quot;./plugins&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="load-plugins-dirs">
+<h3>load_plugins_dirs()<a class="headerlink" href="#load-plugins-dirs" title="Link to this heading">¶</a></h3>
+<p>接受多个父目录，对每个目录调用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.load_plugins_dir" title="melobot.bot.Bot.load_plugins_dir"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_plugins_dir()</span></code></a>。适用于插件分散在多个位置的复杂项目：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span><span class="o">.</span><span class="n">load_plugins_dirs</span><span class="p">([</span><span class="s2">&quot;./core_plugins&quot;</span><span class="p">,</span> <span class="s2">&quot;./user_plugins&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="load-depth">
+<span id="plugin-load-depth"></span><h3>load_depth 参数<a class="headerlink" href="#load-depth" title="Link to this heading">¶</a></h3>
+<p>所有加载方法都接受 <code class="docutils literal notranslate"><span class="pre">load_depth</span></code> 参数（默认值为 1）。它控制插件导入后的模块命名空间名。具体来说：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">load_depth=1</span></code>：插件 <code class="docutils literal notranslate"><span class="pre">my_plugin</span></code> → 入口模块键名 <code class="docutils literal notranslate"><span class="pre">my_plugin.__plugin__</span></code>，子模块 <code class="docutils literal notranslate"><span class="pre">my_plugin.handlers</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">load_depth=2</span></code>：插件 <code class="docutils literal notranslate"><span class="pre">my_plugin</span></code> 位于 <code class="docutils literal notranslate"><span class="pre">extensions/my_plugin/</span></code> → 入口模块键名 <code class="docutils literal notranslate"><span class="pre">extensions.my_plugin.__plugin__</span></code>，子模块 <code class="docutils literal notranslate"><span class="pre">extensions.my_plugin.handlers</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">load_depth=3</span></code>：依此类推，取路径最后 N 级作为前缀</p></li>
+</ul>
+<div class="tip admonition">
+<p class="admonition-title">何时增大 load_depth</p>
+<p>如果你需要<strong>按层级组织插件</strong>：例如 <code class="docutils literal notranslate"><span class="pre">project/feature_set/my_plugin/</span></code>，并且希望使用 <code class="docutils literal notranslate"><span class="pre">feature_set.my_plugin</span></code> 这样的完整命名空间名，就需要增大 <code class="docutils literal notranslate"><span class="pre">load_depth</span></code>。Python 依赖命名空间名执行相对导入。增大 <code class="docutils literal notranslate"><span class="pre">load_depth</span></code> 的优势是：<strong>可以使用 &quot;from .xxx import yyy&quot;、&quot;from ..uuu import vvv&quot; 甚至更深层级的相对导入</strong>。</p>
+<p>大多数情况下：</p>
+<ul class="simple">
+<li><p>使用来自互联网（pip 或其他平台）的插件，插件内部不使用相对导入，加载深度为 1</p></li>
+<li><p>使用自行编写的插件，加载深度设为 1 或设为 2-3 即可满足需求。不建议 &gt; 4，太深的相对导入往往说明模块组织不合理</p></li>
+<li><p>使用自行解压到文件系统的插件包，加载深度请参考插件包作者</p></li>
+</ul>
+</div>
+<div class="warning admonition">
+<p class="admonition-title">父目录同名导致的名称冲突</p>
+<p>假设 <code class="docutils literal notranslate"><span class="pre">./a/b/c/d</span></code> 目录的插件（即插件 d）使用了加载深度 2，形成命名空间名：<code class="docutils literal notranslate"><span class="pre">c.d</span></code></p>
+<p>此时 <code class="docutils literal notranslate"><span class="pre">./a/c/e</span></code> 目录的插件（即插件 e）若使用加载深度 2，则无法正常加载。</p>
+<p>因为 melobot 加载插件 e 时需要的模块 c（对应 <code class="docutils literal notranslate"><span class="pre">./a/c</span></code>）名称上与加载插件 d 时已缓存的模块 c（对应 <code class="docutils literal notranslate"><span class="pre">./a/b/c</span></code>）冲突。出现这类冲突情况时 melobot 会抛出异常，按提示处理即可。</p>
+</div>
+</section>
+</section>
+<section id="id10">
+<h2>跨插件通信<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h2>
+<p>在插件化的 bot 框架中，跨插件依赖是一个棘手的问题。为了更好地理解 melobot 的解决方案，让我们先看看传统框架中常见的痛点。</p>
+<section id="id11">
+<h3>依赖问题的三种形态<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
+<p><strong>依赖地狱</strong>：假设插件 C 依赖插件 B 的功能，插件 B 依赖插件 A 的功能。你必须严格按照 A → B → C 的顺序<strong>加载并初始化</strong>这些插件，否则就会出错。随着插件数量增加，手动管理加载顺序将成为一场噩梦。</p>
+<p><strong>功能延迟</strong>：即使插件 B 中有一个工具函数 <code class="docutils literal notranslate"><span class="pre">format_date()</span></code> 完全不依赖插件 A，但在&quot;必须先初始化依赖&quot;的约束下，整个插件 B 的所有功能都必须等到插件 A 初始化完成后才能使用——包括那些毫无关联的部分。</p>
+<p><strong>循环依赖</strong>：插件 A 需要插件 B 的某个功能，插件 B 也需要插件 A 的某个功能。无论按什么顺序加载，都会有一个插件在初始化时发现它所依赖的另一方尚未就绪。这是最致命的问题——在传统框架中，循环依赖往往意味着需要重新设计插件架构。</p>
+</section>
+<section id="id12">
+<h3>共享对象与延迟解析<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
+<p>melobot 解决上述问题的核心思路是：<strong>声明时只记录依赖关系，访问时才实际解析依赖</strong>。这通过以下两层机制实现：</p>
+<ol class="arabic simple">
+<li><p><strong>共享对象</strong>（<a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.SyncShare" title="melobot.plugin.SyncShare"><code class="xref py py-class docutils literal notranslate"><span class="pre">SyncShare</span></code></a> / <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.AsyncShare" title="melobot.plugin.AsyncShare"><code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncShare</span></code></a>）：插件将需要对外暴露的数据或功能包装为共享对象，在加载时注册到 bot</p></li>
+<li><p><strong>延迟解析</strong>：跨插件访问时，动态获取目标值，而非在 import 时就建立硬依赖</p></li>
+</ol>
+<p>这意味着：</p>
+<ul class="simple">
+<li><p>加载顺序不再重要——因为加载时只注册声明，不做实际调用</p></li>
+<li><p>功能延迟不再是问题——每个组件在真正被使用时才解析依赖</p></li>
+<li><p>循环依赖不再是死结——A 和 B 互相引用共享对象，只要不在各自的初始化阶段相互调用就不会出错</p></li>
+</ul>
+</section>
+<section id="share-object-usage">
+<span id="id13"></span><h3>共享对象的定义和基本使用<a class="headerlink" href="#share-object-usage" title="Link to this heading">¶</a></h3>
+<p>共享对象是跨插件通信的基本单元。根据访问方式的不同，分为两种：</p>
+<p><strong>同步共享对象</strong> <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.SyncShare" title="melobot.plugin.SyncShare"><code class="xref py py-class docutils literal notranslate"><span class="pre">SyncShare</span></code></a>：通过同步 getter/setter 访问。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">SyncShare</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShareObjectCallbackFailed</span> <span class="k">as</span> <span class="n">CbFailed</span>
+
+<span class="c1"># 定义一个共享计数器，其他插件使用 &quot;counter&quot; 引用</span>
+<span class="n">counter</span> <span class="o">=</span> <span class="n">SyncShare</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="s2">&quot;counter&quot;</span><span class="p">)</span>
+
+<span class="nd">@counter</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_counter</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="c1"># 从数据库或其他地方获取计数值</span>
+    <span class="k">return</span> <span class="n">count</span>
+
+<span class="nd">@counter</span><span class="o">.</span><span class="n">setter</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_counter</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 很显然地，可以在 setter 中运行校验再执行具体操作</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">condition</span><span class="p">:</span>
+        <span class="c1"># 如果校验不通过，建议包装在特定异常中便于传播</span>
+        <span class="c1"># 从而与其他可能发生的异常区分开来</span>
+        <span class="k">raise</span> <span class="n">CbFailed</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="o">...</span>
+
+<span class="c1"># 如果已经提前实例化了 PluginPlanner 对象（假设为 my_plugin），直接使用 use</span>
+<span class="n">my_plugin</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
+<span class="c1"># 或者在插件管理器实例化时注册</span>
+<span class="n">my_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="n">shares</span><span class="o">=</span><span class="p">[</span><span class="n">counter</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><strong>异步共享对象</strong> <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.AsyncShare" title="melobot.plugin.AsyncShare"><code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncShare</span></code></a>：通过异步 getter/setter 访问（支持依赖注入）。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">GenericLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncShare</span>
+
+<span class="c1"># 定义一个异步共享的配置对象，其他插件使用 &quot;config&quot; 引用</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">AsyncShare</span><span class="p">[</span><span class="nb">dict</span><span class="p">](</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
+
+<span class="nd">@config</span>
+<span class="c1"># 可以执行依赖注入</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">GenericLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="c1"># 异步读取配置</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">read_config_from_db</span><span class="p">()</span>
+
+<span class="nd">@config</span><span class="o">.</span><span class="n">setter</span>
+<span class="c1"># 依然可以执行依赖注入，保证第一参数用于接受请求的修改值即可</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">set_config</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 依然可以使用验证，这里略去</span>
+    <span class="k">await</span> <span class="n">write_config_to_db</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+<span class="c1"># 使用 use 或在插件管理器实例化时注册</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>一种花哨的写法，可以让你少写几行：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">@</span><span class="p">(</span><span class="n">attr</span> <span class="o">:=</span> <span class="n">AsyncShare</span><span class="p">(</span><span class="s2">&quot;attr&quot;</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_attr</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> <span class="o">...</span>
+
+<span class="nd">@attr</span><span class="o">.</span><span class="n">setter</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">set_attr</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="warning admonition">
+<p class="admonition-title">警告</p>
+<p>提供给插件管理器的共享对象，必须在本插件目录内定义。也就是说，你不能进行类似“重导出”的操作。</p>
+</div>
+<section id="id14">
+<h4>静态共享对象<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h4>
+<p>当共享对象的值是<strong>不需要其他插件修改</strong>的，你可以将其设为静态模式：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 静态共享对象：不需要也不能设置 setter</span>
+<span class="nd">@SyncShare</span><span class="p">[</span><span class="nb">float</span><span class="p">](</span><span class="s2">&quot;pi&quot;</span><span class="p">,</span> <span class="n">static</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="mf">3.1415926535</span>
+
+<span class="nd">@AsyncShare</span><span class="p">[</span><span class="nb">str</span><span class="p">](</span><span class="s2">&quot;magic_str&quot;</span><span class="p">,</span> <span class="n">static</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># 异步地返回一个字符串</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="id15">
+<h4>构造时绑定<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h4>
+<p>共享对象的 getter 和 setter 可以在构造时绑定：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_async</span>
+
+<span class="c1"># 仅推荐使用简单 lambda 时，采用构造时绑定</span>
+<span class="n">count</span> <span class="o">=</span> <span class="n">SyncShare</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">reflector</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">AsyncShare</span><span class="p">[</span><span class="nb">dict</span><span class="p">](</span>
+    <span class="s2">&quot;config&quot;</span><span class="p">,</span> 
+    <span class="c1"># 使用 to_async 可以包装它为异步函数</span>
+    <span class="n">reflector</span><span class="o">=</span><span class="n">to_async</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="o">...</span><span class="p">),</span>
+    <span class="c1"># 或者让 lambda 自己返回一个可等待对象，在接口上是兼容的</span>
+    <span class="n">callback</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="o">...</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id16">
+<h4>导出函数：共享对象的便捷包装<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h4>
+<p>如果你只是想对外暴露一个普通函数，不需要 getter/setter 的复杂语义，可以使用<strong>导出函数</strong>：本质上是自动包装为静态 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.SyncShare" title="melobot.plugin.SyncShare"><code class="xref py py-class docutils literal notranslate"><span class="pre">SyncShare</span></code></a> 的函数：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">format_weather</span><span class="p">(</span><span class="n">city</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">temp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">city</span><span class="si">}</span><span class="s2">：</span><span class="si">{</span><span class="n">temp</span><span class="si">}</span><span class="s2">°C&quot;</span>
+
+<span class="c1"># 注册为导出函数</span>
+<span class="n">my_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span> <span class="n">funcs</span><span class="o">=</span><span class="p">[</span><span class="n">format_weather</span><span class="p">])</span>
+<span class="c1"># 或通过 use</span>
+<span class="nd">@my_plugin</span><span class="o">.</span><span class="n">use</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_weather</span><span class="p">(</span><span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="id17">
+<h4>原始插件通信<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h4>
+<p>在其他插件中，你可以使用原始插件通信方法获取共享对象：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 获取 my_plugin 中名为 &quot;counter&quot;, &quot;config&quot; 的共享对象</span>
+<span class="n">counter</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">get_share</span><span class="p">(</span><span class="s2">&quot;my_plugin&quot;</span><span class="p">,</span> <span class="s2">&quot;counter&quot;</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">get_share</span><span class="p">(</span><span class="s2">&quot;my_plugin&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">)</span>
+
+<span class="c1"># 在实际需要时，例如就绪 hook 中或事件处理流中：</span>
+<span class="c1"># 获取值</span>
+<span class="n">cnt</span> <span class="o">=</span> <span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="k">await</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+<span class="c1"># 设置值</span>
+<span class="n">counter</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">new_cnt</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">new_cfg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>实际开发中很少使用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.get_share" title="melobot.bot.Bot.get_share"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bot.get_share()</span></code></a>，太繁琐了。melobot 提供了更优雅的方式，见下一节。</p>
+</section>
+</section>
+<section id="id18">
+<h3>自动注解生成与使用<a class="headerlink" href="#id18" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">pinit</span></code> 是 melobot CLI 提供的命令，用于为插件目录自动生成 <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__init__.pyi</span></code> 文件并写入必要元信息。它的核心作用是：<strong>让跨插件引用像普通的 Python import 一样自然</strong>。操作步骤为：</p>
+<ol class="arabic simple">
+<li><p>在 <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code> 中定义共享对象和导出函数，并通过插件管理器注册</p></li>
+<li><p>运行 <code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">pinit</span> <span class="pre">&lt;插件目录&gt;</span></code></p></li>
+<li><p>在其他插件中 <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">&lt;位置&gt;</span> <span class="pre">import</span> <span class="pre">&lt;插件名&gt;</span></code> 即可使用</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 为单个插件生成</span>
+mb<span class="w"> </span>pinit<span class="w"> </span>./plugins/my_plugin
+
+<span class="c1"># 为多个插件生成</span>
+mb<span class="w"> </span>pinit<span class="w"> </span>./plugins/plugin_a<span class="w"> </span>./plugins/plugin_b
+
+<span class="c1"># 指定 load_depth（与加载时的 load_depth 保持一致）</span>
+mb<span class="w"> </span>pinit<span class="w"> </span>-d<span class="w"> </span><span class="m">2</span><span class="w"> </span>./plugins/my_plugin
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 假设在与 my_plugin 插件同级目录中，存在另一插件 another_plugin</span>
+<span class="c1"># 且我们设置 another_plugin 插件的 load_depth &gt;= 2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">my_plugin</span> <span class="k">as</span> <span class="n">p</span>
+
+<span class="c1"># 在实际需要时，例如就绪 hook 中或事件处理流中：</span>
+<span class="n">cnt</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+<span class="n">config</span> <span class="o">=</span> <span class="k">await</span> <span class="n">p</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+<span class="c1"># 在需要发起修改时：</span>
+<span class="n">p</span><span class="o">.</span><span class="n">counter</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">new_cnt</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">p</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">new_config</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>不要在导入其他插件后，立即访问它们上面的共享对象，因为此时未就绪。</p>
+<p>对于静态共享对象，在跨插件访问时会直接返回 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.SyncShare.get" title="melobot.plugin.SyncShare.get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get()</span></code></a> 的结果值，就像导入了一个常量：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">my_plugin</span> <span class="k">as</span> <span class="n">p</span>
+
+<span class="c1"># 在实际需要时，例如就绪 hook 中或事件处理流中：</span>
+<span class="n">pi</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">pi_value</span>
+<span class="n">magic_str</span> <span class="o">=</span> <span class="k">await</span> <span class="n">p</span><span class="o">.</span><span class="n">magic_str</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id19">
+<h2>插件的生命周期<a class="headerlink" href="#id19" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>插件模块执行</strong>：由四种加载方式中的任何一种触发，完全是同步过程。加载目录内 <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code> 对应模块，如果设置了 <code class="docutils literal notranslate"><span class="pre">auto_import</span></code>，即使没有 <code class="docutils literal notranslate"><span class="pre">import</span></code> 语句产生关联，也自动递归发现并加载剩余模块。此阶段 bot 实例、所有源与适配器已经存在，可以通过各种方式获取。</p></li>
+<li><p><strong>插件就绪</strong>：bot 调用启动方法（<a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.run" title="melobot.bot.Bot.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> 或 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.run_async" title="melobot.bot.Bot.run_async"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_async()</span></code></a>）后，异步执行所有插件的就绪 hook。<strong>就绪 hook 中可以访问其他插件的共享对象，也可运行耗时的异步初始化操作</strong>。这一阶段源和适配器可能未开始工作，因为它们正在异步启动中。</p></li>
+<li><p><strong>插件运行</strong>：本插件的就绪 hook 运行结束后，本插件的处理流才能处理事件。</p></li>
+<li><p><strong>插件停止</strong>：bot 停止工作，触发源与适配器进行资源清理。插件不再接收到事件，即停止工作。插件自身的资源清理，应该和 bot 的生命周期（<a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.on_close" title="melobot.bot.Bot.on_close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_close()</span></code></a> 或 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.on_stopped" title="melobot.bot.Bot.on_stopped"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_stopped()</span></code></a>）绑定。</p></li>
+</ol>
+<p>插件内通过 <a class="reference internal" href="../api/melobot.plugin.html#melobot.plugin.PluginPlanner.on_ready" title="melobot.plugin.PluginPlanner.on_ready"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on_ready()</span></code></a> 属性或 <a class="reference internal" href="../api/melobot.mixin.html#melobot.mixin.HookMixin.on" title="melobot.mixin.HookMixin.on"><code class="xref py py-meth docutils literal notranslate"><span class="pre">on()</span></code></a> 方法绑定就绪 hook：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginLifeSpan</span>
+
+<span class="n">my_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">)</span>
+
+<span class="nd">@my_plugin</span><span class="o">.</span><span class="n">on_ready</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">GenericLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">connect_db</span><span class="p">()</span>
+    <span class="o">...</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;my_plugin 异步资源初始化完成&quot;</span><span class="p">)</span>
+
+<span class="c1"># 或者使用 on</span>
+<span class="nd">@my_plugin</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="n">PluginLifeSpan</span><span class="o">.</span><span class="n">READY</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>很显然，上面的例子展示了就绪 hook 可以使用依赖注入，但是请注意<strong>就绪 hook 运行时源和适配器不一定开始工作</strong>。</p>
+<div class="warning admonition">
+<p class="admonition-title">注意</p>
+<p>不要在顶层作用域内、就绪 hook 中直接运行耗时的同步操作，这会在插件加载时阻塞整个 bot 进程。</p>
+<p>正确的做法是：IO 密集型耗时同步操作使用 async 风格接口或交给线程池，CPU 密集型耗时同步操作交给进程池，最后再异步等待。并且如果是初始化操作，最好都在就绪 hook 中完成等待。</p>
+</div>
+<p>常规的插件加载都在 bot 启动（调用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.run" title="melobot.bot.Bot.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> 或 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.run_async" title="melobot.bot.Bot.run_async"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_async()</span></code></a>）前，即静态加载。但实际上 melobot 支持在 bot 启动后再加载插件，这也被称为动态加载。优势是：可以用于实现插件的选择性加载。</p>
+<p>仅推荐在插件就绪 hook 中、处理流运行时进行动态加载。</p>
+<div class="danger admonition">
+<p class="admonition-title">危险</p>
+<p>melobot 支持动态加载插件，但是不支持动态卸载插件。<strong>Python 的底层机制决定：动态卸载模块是不安全的</strong>。</p>
+<p>即使递归清除 <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.modules" title="（在 Python v3.14）"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> 缓存且清理干净所有残余引用，重复导入一些模块也可能造成以下问题：解释器崩溃、内存泄漏、关键操作不再保持原子性。</p>
+</div>
+</section>
+<section id="plugin-init-args">
+<span id="id20"></span><h2>插件的初始化参数<a class="headerlink" href="#plugin-init-args" title="Link to this heading">¶</a></h2>
+<p>在加载插件时可以向插件提供<strong>初始化参数</strong>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 注意 load_depth 为仅位置参数</span>
+<span class="c1"># 初始化参数按仅关键字参数的形式提供</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="s2">&quot;./plugin_a&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">arg1</span><span class="o">=</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">b</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># 其他三种加载插件的方法，按对应格式提供初始化参数即可，请自行查阅</span>
+</pre></div>
+</div>
+<p>在就绪回调中可以接收初始化参数：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_plugin</span> <span class="o">=</span> <span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">)</span>
+
+<span class="nd">@my_plugin</span><span class="o">.</span><span class="n">on_ready</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span>
+    <span class="c1"># 其他组件的依赖注入依然可以使用</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">GenericLogger</span><span class="p">,</span> <span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span> 
+    <span class="c1"># 初始化参数的名称必须对应，顺序无所谓</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> 
+    <span class="c1"># 也可以设置默认值</span>
+    <span class="n">arg1</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hi&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>如果你想要“带有类型提示”的方案，可以按照以下步骤操作。首先在插件目录下撰写 <code class="docutils literal notranslate"><span class="pre">__pargs__.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># __pargs__.py 内：</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">NotRequired</span>
+
+<span class="c1"># 类名必须为 Args，必须继承 TypedDict</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Args</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="n">a</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="c1"># 这只是标记拥有默认值，默认值请在就绪回调函数中设置</span>
+    <span class="n">arg1</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">__pargs__.py</span></code> 仅用于定义初始化参数的类型，辅助进行静态类型分析。因此此模块<strong>不应导入插件内其他任何模块</strong>。而且此模块应尽可能轻量，使用 <code class="docutils literal notranslate"><span class="pre">TYPE_CHECKING</span></code> 技巧可以避免加载耗时的模块：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="c1"># 这个非常耗时，所以不要直接导入它</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Args</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="c1"># 对应注解用引号包裹即可</span>
+    <span class="n">magic_tensor</span><span class="p">:</span> <span class="s2">&quot;torch.Tensor&quot;</span>
+</pre></div>
+</div>
+<p>接下来我们运行一次 <code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">pinit</span></code> 即可在插件目录模块上绑定此 <code class="docutils literal notranslate"><span class="pre">Args</span></code> 类。加载插件时让用户使用以下形式即可：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">my_plugin</span>
+
+<span class="c1"># my_plugin 是插件目录模块</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">my_plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">my_plugin</span><span class="o">.</span><span class="n">Args</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>如果 load_depth &gt; 1，需要注意导入插件目录模块的方式。此时你需要<strong>自行保证模块名和导入深度是匹配的</strong>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">her_plugin</span>
+<span class="c1"># her_plugin 此时模块名为 plugins.her_plugin</span>
+<span class="c1"># plugins.her_plugin 与 2 级加载深度是匹配的</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">her_plugin</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">her_plugin</span><span class="o">.</span><span class="n">Args</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>对于本地自行撰写的插件，某些情况下可能要通过操纵 <code class="docutils literal notranslate"><span class="pre">sys.path</span></code> 来实现这一点。而对于线上平台获取的插件，加载深度恒为 1。</p>
+<p>最后，在就绪回调中使用解包类型注解语法：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Unpack</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.__pargs__</span><span class="w"> </span><span class="kn">import</span> <span class="n">Args</span>
+
+<span class="nd">@my_plugin</span><span class="o">.</span><span class="n">on_ready</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n">Args</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 获得的值拥有精确的类型注解</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s2">&quot;xxx&quot;</span><span class="p">]</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<div class="warning admonition">
+<p class="admonition-title">注意</p>
+<p>“带有类型提示”的方案<strong>并不保证类型安全</strong>。因为整个过程没有进行任何类型验证。</p>
+<p>如果你需要类型验证，请自行使用 Pydantic 等三方模块提供的对 TypedDict 的类型验证功能。在就绪回调中对 <code class="docutils literal notranslate"><span class="pre">Unpack</span></code> 标注的 <code class="docutils literal notranslate"><span class="pre">args</span></code> 参数进行验证即可。</p>
+</div>
+<div class="tip admonition">
+<p class="admonition-title">提示</p>
+<p>匿名插件也可以使用初始化参数，不过一般没有必要。</p>
+</div>
+</section>
+<section id="id21">
+<h2>最佳实践<a class="headerlink" href="#id21" title="Link to this heading">¶</a></h2>
+<section id="id22">
+<h3>尽量少使用原始插件通信接口<a class="headerlink" href="#id22" title="Link to this heading">¶</a></h3>
+<p><a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.get_share" title="melobot.bot.Bot.get_share"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bot.get_share()</span></code></a> 是底层接口，直接使用这种方式缺乏类型安全（没有 <code class="docutils literal notranslate"><span class="pre">.pyi</span></code> 的类型提示）保证，还降低了代码可读性。</p>
+<p>只有在<strong>确实需要动态性</strong>，比如在运行时根据变量名查找共享对象时，才使用原始插件通信接口。</p>
+</section>
+<section id="id23">
+<h3>只写插件入口，让工具生成其余文件<a class="headerlink" href="#id23" title="Link to this heading">¶</a></h3>
+<p>melobot 插件的理念要求：</p>
+<ul class="simple">
+<li><p><strong>你只撰写</strong> <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code>（插件的真实入口），包含插件管理器和所有功能绑定</p></li>
+<li><p><strong>你永远不手动撰写</strong> <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__init__.pyi</span></code>，让它们通过 <code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">pinit</span></code> 自动生成</p></li>
+</ul>
+<p>手动写 <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>，可能不小心引入了对另一插件的硬 import，从而破坏了延迟解析的优势。</p>
+</section>
+<section id="id24">
+<h3>尽量在顶层作用域建立插件引用，但非共享对象引用<a class="headerlink" href="#id24" title="Link to this heading">¶</a></h3>
+<p>当你需要引用其他插件的共享对象时，尽量在模块的<strong>顶层作用域</strong>完成<strong>插件目录模块</strong>的 import。</p>
+<p>顶层 import 让依赖关系一目了然，也方便后续各个共享对象使用时直接引用。除非你需要使用延迟 import 解决少量循环依赖问题，但大量的循环依赖意味着需要重构。</p>
+</section>
+<section id="id25">
+<h3>耗时操作永远不要同步阻塞<a class="headerlink" href="#id25" title="Link to this heading">¶</a></h3>
+<p>不要在顶层作用域内、就绪 hook 中直接运行耗时的同步操作，这会在插件加载时阻塞整个 bot 进程。</p>
+<p>正确的做法是：IO 密集型耗时同步操作使用 async 风格接口或交给线程池，CPU 密集型耗时同步操作交给进程池，最后再异步等待。且如果是资源初始化，最好在就绪 hook 中完成等待。</p>
+</section>
+<section id="id26">
+<h3>合理使用自动导入<a class="headerlink" href="#id26" title="Link to this heading">¶</a></h3>
+<p>自动导入虽然方便，但递归查找并导入大量模块会拖慢加载速度，请酌情使用。</p>
+<p>如果没有进行“依赖反转”以使用组合式 API 的需求，建议不使用自动导入。</p>
+</section>
+<section id="id27">
+<h3>共享对象命名规范<a class="headerlink" href="#id27" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>共享对象名、导出函数名<strong>不能以 <code class="docutils literal notranslate"><span class="pre">_</span></code> 开头</strong></p></li>
+<li><p>共享对象、导出函数名<strong>不能与插件根目录下的文件名或目录名重复</strong></p></li>
+</ul>
+</section>
+</section>
+<section id="id28">
+<h2>总结<a class="headerlink" href="#id28" title="Link to this heading">¶</a></h2>
+<p>melobot 的插件系统提供了一套完整的模块化开发方案，其核心优势在于：</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>特性</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>两种插件形态</strong></p></td>
+<td><p>模块级插件（目录 + <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code>）适合正式项目；匿名插件适合原型和测试</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>灵活的加载方式</strong></p></td>
+<td><p>bot 提供 4 种加载方法，覆盖单插件、批量、单目录、多目录等场景</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>延迟解析的插件通信</strong></p></td>
+<td><p>通过共享对象，实现声明时不依赖、访问时才解析</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>生命周期 hook</strong></p></td>
+<td><p>就绪 hook 支持依赖注入，也可动态加载插件</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>解决三大依赖难题</strong></p></td>
+<td><p>依赖地狱、功能延迟、循环依赖——通过声明与解析分离得到根本性解决</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>掌握了插件系统与插件通信机制，你就能将 melobot 项目组织为清晰、可维护的模块化架构。</p>
+<p>下一篇将介绍：<a class="reference internal" href="bot.html"><span class="doc std std-doc">bot 对象与相关接口</span></a>。</p>
+</section>
 </section>
 
         </article>
@@ -335,12 +985,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../ob_refer/index.html">
+          <a class="next-page" href="bot.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">OneBot 相关</div>
+                <div class="title">bot 对象与相关接口</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -351,7 +1001,7 @@
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">会话控制与机制</div>
+                <div class="title">会话控制与管理</div>
                 
               </div>
             </a>
@@ -380,13 +1030,76 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">插件系统与进阶用法</a><ul>
+<li><a class="reference internal" href="#id2">插件的两种形态</a><ul>
+<li><a class="reference internal" href="#id3">模块级插件</a></li>
+<li><a class="reference internal" href="#id4">匿名插件（动态插件）</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">插件管理器</a><ul>
+<li><a class="reference internal" href="#id6">初始化参数</a></li>
+<li><a class="reference internal" href="#id7">插件信息类</a></li>
+<li><a class="reference internal" href="#use">use() 装饰器</a></li>
+<li><a class="reference internal" href="#id8">自动导入</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9">插件加载方法</a><ul>
+<li><a class="reference internal" href="#load-plugin">load_plugin()</a></li>
+<li><a class="reference internal" href="#load-plugins">load_plugins()</a></li>
+<li><a class="reference internal" href="#load-plugins-dir">load_plugins_dir()</a></li>
+<li><a class="reference internal" href="#load-plugins-dirs">load_plugins_dirs()</a></li>
+<li><a class="reference internal" href="#load-depth">load_depth 参数</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id10">跨插件通信</a><ul>
+<li><a class="reference internal" href="#id11">依赖问题的三种形态</a></li>
+<li><a class="reference internal" href="#id12">共享对象与延迟解析</a></li>
+<li><a class="reference internal" href="#share-object-usage">共享对象的定义和基本使用</a><ul>
+<li><a class="reference internal" href="#id14">静态共享对象</a></li>
+<li><a class="reference internal" href="#id15">构造时绑定</a></li>
+<li><a class="reference internal" href="#id16">导出函数：共享对象的便捷包装</a></li>
+<li><a class="reference internal" href="#id17">原始插件通信</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id18">自动注解生成与使用</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id19">插件的生命周期</a></li>
+<li><a class="reference internal" href="#plugin-init-args">插件的初始化参数</a></li>
+<li><a class="reference internal" href="#id21">最佳实践</a><ul>
+<li><a class="reference internal" href="#id22">尽量少使用原始插件通信接口</a></li>
+<li><a class="reference internal" href="#id23">只写插件入口，让工具生成其余文件</a></li>
+<li><a class="reference internal" href="#id24">尽量在顶层作用域建立插件引用，但非共享对象引用</a></li>
+<li><a class="reference internal" href="#id25">耗时操作永远不要同步阻塞</a></li>
+<li><a class="reference internal" href="#id26">合理使用自动导入</a></li>
+<li><a class="reference internal" href="#id27">共享对象命名规范</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id28">总结</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=dd0888fc"></script>
+</div><script src="../_static/documentation_options.js?v=738234d0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

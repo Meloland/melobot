@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.handle.register - melobot 3.4.0</title>
+        <title>melobot.handle.register - melobot 3.4.0.post19.dev0+6484821</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.4.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.4.0.post19.dev0+6484821</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -191,7 +191,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.4.0</span>
+  <span class="sidebar-brand-text">melobot 3.4.0.post19.dev0+6484821</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -222,8 +222,17 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/adapter_extra.html">适配器层其他组件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/process_flow.html">事件处理流与机制</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/dependency_injection.html">依赖注入与特性</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/session_control.html">会话控制与机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/plugin_usage.html">插件机制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/session_control.html">会话控制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/plugin_usage.html">插件系统与进阶用法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/bot.html">bot 对象与相关接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/log.html">日志组件与日志修补</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/utils.html">实用组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/typ.html">类型工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/import_lazy.html">导入与惰性加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/context.html">上下文管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/meta.html">元信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/cli.html">CLI 界面</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/mp.html">多进程支持</a></li>
 </ul>
 </li>
 </ul>
@@ -323,11 +332,11 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..adapter.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span><span class="p">,</span> <span class="n">EventT</span><span class="p">,</span> <span class="n">TextEvent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventCompletion</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">ParseArgsCtx</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..di</span><span class="w"> </span><span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">inject_deps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..di</span><span class="w"> </span><span class="kn">import</span> <span class="n">SENTINEL</span><span class="p">,</span> <span class="n">BindDepends</span><span class="p">,</span> <span class="n">inject_deps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..session.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">enter_session</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..session.option</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultRule</span><span class="p">,</span> <span class="n">Rule</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..typ._enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogicMode</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..typ.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">SyncOrAsyncCallable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typ.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncCallable</span><span class="p">,</span> <span class="n">SyncOrAsyncCallable</span><span class="p">,</span> <span class="n">T</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils.check</span><span class="w"> </span><span class="kn">import</span> <span class="n">Checker</span><span class="p">,</span> <span class="n">checker_join</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_obj_name</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils.match</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -904,10 +913,12 @@
 <span class="n">_FLOW_CTX</span> <span class="o">=</span> <span class="n">FlowCtx</span><span class="p">()</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">FlowArgDepend</span><span class="p">(</span><span class="n">Depends</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg_idx</span><span class="p">:</span> <span class="n">Hashable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FlowArg</span><span class="p">(</span><span class="n">BindDepends</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">arg_idx</span><span class="p">:</span> <span class="n">Hashable</span><span class="p">,</span> <span class="n">verify</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">SENTINEL</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">SENTINEL</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">arg_idx</span> <span class="o">=</span> <span class="n">arg_idx</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_getter</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_getter</span><span class="p">,</span> <span class="n">check_type</span><span class="o">=</span><span class="n">verify</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="n">f_store</span> <span class="o">=</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">get_store</span><span class="p">()</span>
@@ -920,13 +931,21 @@
 
 <div class="viewcode-block" id="get_flow_arg">
 <a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.get_flow_arg">[文档]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_flow_arg</span><span class="p">(</span><span class="n">arg_idx</span><span class="p">:</span> <span class="n">Hashable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_flow_arg</span><span class="p">(</span>
+    <span class="n">arg_idx</span><span class="p">:</span> <span class="n">Hashable</span><span class="p">,</span> <span class="n">verify</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">SENTINEL</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">SENTINEL</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取处理流存储中的值</span>
 
 <span class="sd">    :param arg_idx: 键索引</span>
+<span class="sd">    :param verify: 是否验证类型（启用此选项，必须通过类型注解或 `type` 参数提供类型）</span>
+<span class="sd">    :param type: 作用如 `verify` 参数所述（此参数甚至可以是类型注解）</span>
+<span class="sd">    :param default:</span>
+<span class="sd">        默认值。在获取值失败时不发出异常转而返回该值。</span>
+<span class="sd">        但如果 `verify=True`，默认值仍然会参与类型验证过程。</span>
+<span class="sd">        默认值类型验证失败时，将会发出类型验证失败异常，而不是继续执行</span>
 <span class="sd">    :return: 对应的依赖项</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">FlowArgDepend</span><span class="p">(</span><span class="n">arg_idx</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">FlowArg</span><span class="p">(</span><span class="n">arg_idx</span><span class="p">,</span> <span class="n">verify</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">default</span><span class="p">))</span></div>
 
 </pre></div>
         </article>
@@ -967,7 +986,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=dd0888fc"></script>
+</div><script src="../../../_static/documentation_options.js?v=738234d0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

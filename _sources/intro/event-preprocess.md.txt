@@ -469,6 +469,113 @@ fmtters = [
 ]
 ```
 
+## 解析器交互式参数问询
+
+命令解析器 {class}`.CmdParser` 支持交互式模式。在参数缺失时自动发出交互式问询，以尝试补全参数。但对应参数必须启用格式化器：
+
+```python
+from melobot.utils.parse import CmdArgFormatter, CmdParserFactory
+
+PARSER_FACTORY = CmdParserFactory(".", " ")
+TRANSLATE_CMD_PARSER = PARSER_FACTORY.get(
+    targets=["translate", "trans", "翻译"],
+    # 启用交互式功能
+    interactive=True
+    formatters=[
+        # 设置对应参数交互式问询的超时时间
+        CmdArgFormatter(..., i_timeout=30),
+        ...
+    ]
+)
+
+# 或在解析器初始化时提供
+parser = CmdParser(..., interactive=True)
+```
+
+如果要在交互式问询时使用自定义提示信息，请将 `interactive` 参数替换为“自定义提示生成函数”：
+
+```python
+from melobot.utils.parse import CmdArgFormatInfo, CmdArgFormatter
+
+# 同步或异步均可
+async def get_tip(info: CmdArgFormatInfo) -> str:
+    return f"请提供参数 {info.src_desc}（{info.src_expect}）："
+
+# 替换对应位置的 interactive 参数：
+PARSER_FACTORY.get(
+    ...
+    # 使用自定义提示
+    interactive=get_tip
+    formatters=[
+        ...
+        CmdArgFormatter(...),
+        ...
+    ]
+)
+
+# 使用自定义提示
+parser = CmdParser(..., interactive=get_tip)
+```
+
+## 解析参数自定义键名
+
+可以为每个参数设置自定义键名：
+
+```python
+# 提供任意 Hashable 对象即可，若 key 为空则内部使用自增数字索引
+fmtter = CmdArgFormatter(..., key=...)
+```
+
+鉴于内部默认使用自增数字索引，建议若需要启用自定义键名，最好对所有参数都设置。且**所有键名最好都为同一类型**。
+
+自定义键名相关的接口：
+
+```python
+# 假设现在有三个参数，自定义它们的键名为："arg1", "arg2", "arg3"
+# 它们对应的值为：[1, "2", ["whatever"]]
+# 假设解析参数对象为：
+args: CmdArgs
+
+# 使用自定义键名后，也就使用此键名获取对应参数
+assert args["arg3"] == ["whatever"]
+
+# 自定义键名不影响具体的值（它们仍然遵循格式化逻辑）
+assert args.vals == [1, "2", ["whatever"]]
+
+# 自定义键名通过 keys 获取
+assert args.keys == ("arg1", "arg2", "arg3")
+
+# 获取键值对使用 items
+assert args.items == (("arg1", 1), ("arg2", "2"), ("arg3", ["whatever"]))
+
+# 这实际等价于迭代 args.keys
+for key in args: ...
+
+# in 操作实际上是判断键是否存在
+assert "2" in args
+
+# 使用 len 可以判断参数的个数
+assert len(args) == 3
+```
+
+使用 `[]` 操作符获取参数依然不是很方便，所以让我们来一点依赖注入：
+
+```python
+from melobot.utils.parse import get_cmd_arg
+
+@on_xxx(...)
+# lang 为自定义键名
+async def f(lang: str = get_cmd_arg("lang")) -> None:
+    # 等价于首先通过注解获取 args（类型 CmdArgs）
+    # 然后：lang = args["lang"]
+    ...
+
+# 或者使用 Annotated 风格的写法，这两种写法是等价的
+async def f(lang: Annotated[str, get_cmd_arg("lang")])
+```
+
+当你未使用自定义键名时，使用默认的数字索引即可：`get_cmd_arg(0)`。
+
 ## 自定义解析器
 
 实现 melobot core 内置的抽象类来自定义解析器：

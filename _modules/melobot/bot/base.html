@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.bot.base - melobot 3.4.0</title>
+        <title>melobot.bot.base - melobot 3.4.0.post19.dev0+6484821</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.4.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.4.0.post19.dev0+6484821</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -191,7 +191,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.4.0</span>
+  <span class="sidebar-brand-text">melobot 3.4.0.post19.dev0+6484821</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -222,8 +222,17 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/adapter_extra.html">适配器层其他组件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/process_flow.html">事件处理流与机制</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/dependency_injection.html">依赖注入与特性</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/session_control.html">会话控制与机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/plugin_usage.html">插件机制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/session_control.html">会话控制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/plugin_usage.html">插件系统与进阶用法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/bot.html">bot 对象与相关接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/log.html">日志组件与日志修补</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/utils.html">实用组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/typ.html">类型工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/import_lazy.html">导入与惰性加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/context.html">上下文管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/meta.html">元信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/cli.html">CLI 界面</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/mp.html">多进程支持</a></li>
 </ul>
 </li>
 </ul>
@@ -335,10 +344,9 @@
     <span class="n">AsyncGenerator</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
     <span class="n">Generator</span><span class="p">,</span>
-    <span class="n">Iterable</span><span class="p">,</span>
-    <span class="n">Literal</span><span class="p">,</span>
     <span class="n">LiteralString</span><span class="p">,</span>
     <span class="n">NoReturn</span><span class="p">,</span>
+    <span class="n">Sequence</span><span class="p">,</span>
     <span class="n">overload</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -354,7 +362,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..log.reflect</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..log.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_loop_exc_log</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..mixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">HookMixin</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..plugin.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plugin</span><span class="p">,</span> <span class="n">PluginLifeSpan</span><span class="p">,</span> <span class="n">PluginPlanner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..plugin.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plugin</span><span class="p">,</span> <span class="n">PluginPlanner</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..plugin.ipc</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncShare</span><span class="p">,</span> <span class="n">IPCManager</span><span class="p">,</span> <span class="n">SyncShare</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..plugin.load</span><span class="w"> </span><span class="kn">import</span> <span class="n">PluginLoader</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..protocols.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProtocolStack</span>
@@ -367,23 +375,16 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">BotLifeSpan</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;bot 生命周期阶段的枚举&quot;&quot;&quot;</span>
 
-    <span class="c1">#: 所有插件加载之后</span>
-    <span class="n">LOADED</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span>
     <span class="c1">#: bot 启动完成之后（此时所有适配器和源已经开始工作）</span>
     <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;sta&quot;</span>
-    <span class="c1">#: bot 重新启动完成之后</span>
+    <span class="c1">#: bot 重新启动完成之后（此时所有适配器和源已经开始工作）</span>
     <span class="n">RESTARTED</span> <span class="o">=</span> <span class="s2">&quot;r&quot;</span>
-    <span class="c1">#: bot 手动停止即将发生前（仅限 bot.close() 和 bot.restart() 发起的，信号结束进程或出现异常可能不触发此类型）</span>
+    <span class="c1">#: bot 手动停止即将发生前（仅限 bot.close() 和 bot.restart() 发起的，信号结束进程或出现异常不触发此类型）</span>
     <span class="n">CLOSE</span> <span class="o">=</span> <span class="s2">&quot;c&quot;</span>
-    <span class="c1">#: bot 停止完成后（包含任何情况导致的停止，请在这里处理清理工作）</span>
-    <span class="n">STOPPED</span> <span class="o">=</span> <span class="s2">&quot;sto&quot;</span>
-
-    <span class="n">RELOADED</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">]</span></div>
+    <span class="c1">#: bot 停止完成后（包含任何情况导致的停止，请在这里处理清理工作，此时所有适配器和源已停止工作）</span>
+    <span class="n">STOPPED</span> <span class="o">=</span> <span class="s2">&quot;sto&quot;</span></div>
 
 
-
-<span class="c1"># 兼容旧版本</span>
-<span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">RELOADED</span> <span class="o">=</span> <span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">RESTARTED</span>  <span class="c1"># type: ignore[assignment]</span>
 
 <span class="n">_BOT_CTX</span> <span class="o">=</span> <span class="n">BotCtx</span><span class="p">()</span>
 <span class="n">_LUCKY_VALUE</span> <span class="o">=</span> <span class="n">random</span><span class="p">()</span>
@@ -588,6 +589,8 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">plugin</span><span class="p">:</span> <span class="n">ModuleType</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">PluginPlanner</span><span class="p">,</span>
         <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">init_args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bot</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;加载插件，非线程安全</span>
 
@@ -596,11 +599,12 @@
 <span class="sd">            插件加载时的相对引用深度，默认值 1 只支持向上引用到插件目录一级。</span>
 <span class="sd">            增加为 2 可以引用到插件目录的父目录一级，依此类推。</span>
 <span class="sd">            此参数只在 `plugin` 参数为插件的目录路径时有效。</span>
+<span class="sd">        :param init_args: 传递给插件的初始化参数</span>
 <span class="sd">        :return: bot 对象，因此支持链式调用</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_core_init</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_common_sync_ctx</span><span class="p">():</span>
-            <span class="n">p</span><span class="p">,</span> <span class="n">is_loaded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">)</span>
+            <span class="n">p</span><span class="p">,</span> <span class="n">is_loaded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">,</span> <span class="o">**</span><span class="n">init_args</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">is_loaded</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span>
 
@@ -612,12 +616,7 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;成功加载插件：</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">get_evoke_time</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">STARTED</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
-                    <span class="n">p</span><span class="o">.</span><span class="n">hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
-                        <span class="n">PluginLifeSpan</span><span class="o">.</span><span class="n">INITED</span><span class="p">,</span>
-                        <span class="n">callback</span><span class="o">=</span><span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="o">.</span><span class="n">init_flows</span><span class="p">),</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">run_ready_hook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="p">))</span>
             <span class="k">return</span> <span class="bp">self</span></div>
 
 
@@ -625,29 +624,46 @@
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.load_plugins">[文档]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_plugins</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">plugins</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ModuleType</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">PluginPlanner</span><span class="p">],</span>
+        <span class="n">plugins</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ModuleType</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">PluginPlanner</span><span class="p">],</span>
         <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">init_args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :func:`load_plugin` 行为类似，但是参数变为可迭代对象</span>
 
 <span class="sd">        此方法同样不是线程安全的</span>
 
+<span class="sd">        当 `plugins` 中某一项不需要初始化参数时，</span>
+<span class="sd">        `init_args` 对应的位置使用 `{}` 占空</span>
+
 <span class="sd">        :param plugins: 可迭代对象，包含：可以被加载为插件的对象（插件目录对应的模块，插件的目录路径，插件对象）</span>
 <span class="sd">        :param load_depth: 参见 :func:`load_plugin` 同名参数</span>
+<span class="sd">        :param init_args: 传递给插件的初始化参数</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">plugins</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">init_args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">plugins</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plugins</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">,</span> <span class="o">**</span><span class="n">init_args</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="Bot.load_plugins_dir">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.load_plugins_dir">[文档]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_plugins_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_plugins_dir</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">init_args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :func:`load_plugin` 行为类似，但是参数变为插件目录的父目录，本方法可以加载单个目录下的多个插件</span>
 
 <span class="sd">        此方法同样不是线程安全的</span>
 
 <span class="sd">        :param pdir: 插件所在父目录的路径</span>
 <span class="sd">        :param load_depth: 参见 :func:`load_plugin` 同名参数</span>
+<span class="sd">        :param init_args:</span>
+<span class="sd">            传递给插件的初始化参数，请匹配 `os.listdir(pdir)` 给出的目录顺序。</span>
+<span class="sd">            某一项不需要初始化参数时，使用 `{}` 占空</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parent_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">pdir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
         <span class="n">plugin_dirs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -657,12 +673,17 @@
             <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;__pycache__&quot;</span><span class="p">:</span>
                 <span class="n">plugin_dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">load_plugins</span><span class="p">(</span><span class="n">plugin_dirs</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_plugins</span><span class="p">(</span><span class="n">plugin_dirs</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">,</span> <span class="n">init_args</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Bot.load_plugins_dirs">
 <a class="viewcode-back" href="../../../api/melobot.bot.html#melobot.bot.Bot.load_plugins_dirs">[文档]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_plugins_dirs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdirs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_plugins_dirs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pdirs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+        <span class="n">load_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">init_args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :func:`load_plugins_dir` 行为类似，但是参数变为可迭代对象，每个元素为包含插件目录的父目录。</span>
 <span class="sd">        本方法可以加载多个目录下的多个插件</span>
 
@@ -670,9 +691,16 @@
 
 <span class="sd">        :param pdirs: 可迭代对象，包含：插件所在父目录的路径</span>
 <span class="sd">        :param load_depth: 参见 :func:`load_plugin` 同名参数</span>
+<span class="sd">        :param init_args:</span>
+<span class="sd">            传递给插件的初始化参数，请匹配 `os.listdir(插件目录)` 给出的目录顺序。</span>
+<span class="sd">            某一项不需要初始化参数时，使用 `{}` 占空</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">pdir</span> <span class="ow">in</span> <span class="n">pdirs</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_plugins_dir</span><span class="p">(</span><span class="n">pdir</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">init_args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">pdir</span> <span class="ow">in</span> <span class="n">pdirs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_plugins_dir</span><span class="p">(</span><span class="n">pdir</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">pdir</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pdirs</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_plugins_dir</span><span class="p">(</span><span class="n">pdir</span><span class="p">,</span> <span class="n">load_depth</span><span class="p">,</span> <span class="n">init_args</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span></div>
 
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -688,16 +716,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_common_async_ctx</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">set_channel_ctx</span><span class="p">(</span><span class="n">contextvars</span><span class="o">.</span><span class="n">copy_context</span><span class="p">())</span>
-
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">LOADED</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runner</span><span class="o">.</span><span class="n">is_from_restart</span><span class="p">():</span>
-                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">RESTARTED</span><span class="p">)</span>
-
                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-                    <span class="k">await</span> <span class="n">p</span><span class="o">.</span><span class="n">hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
-                        <span class="n">PluginLifeSpan</span><span class="o">.</span><span class="n">INITED</span><span class="p">,</span>
-                        <span class="n">callback</span><span class="o">=</span><span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="o">.</span><span class="n">init_flows</span><span class="p">),</span>
-                    <span class="p">)</span>
+                    <span class="k">await</span> <span class="n">p</span><span class="o">.</span><span class="n">run_ready_hook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="p">)</span>
 
                 <span class="n">ts</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
                     <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">enter_async_context</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">__adapter_launch__</span><span class="p">()))</span>
@@ -706,6 +726,8 @@
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">):</span>
                     <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
 
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runner</span><span class="o">.</span><span class="n">is_from_restart</span><span class="p">():</span>
+                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">RESTARTED</span><span class="p">)</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_bus</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">STARTED</span><span class="p">)</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__happy_end</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
 
@@ -725,7 +747,7 @@
         <span class="n">loop_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">eager_task</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;运行 bot 的阻塞方法（将在内部创建事件循环），这适用于只运行单一 bot 的情况</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;运行 bot 的阻塞方法（将在内部创建事件循环）</span>
 
 <span class="sd">        :param debug: 是否启用 :py:mod:`asyncio` 的调试模式，但是这不会更改 :py:mod:`asyncio` 日志器的日志等级</span>
 <span class="sd">        :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志</span>
@@ -757,9 +779,9 @@
         <span class="n">shutdown_asyncgens</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">shutdown_default_executor</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;运行 bot 的异步方法（将在已有的事件循环中运行），这适用于只运行单一 bot 的情况</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;运行 bot 的异步方法（将在已有的事件循环中运行）</span>
 
-<span class="sd">        我们仅推荐在测试环境中使用此方法，因为部分测试框架的异步测试会先运行一个事件循环（如 pytest-asyncio）。</span>
+<span class="sd">        仅推荐在测试环境中使用此方法，因为部分测试框架的异步测试会先运行一个事件循环（如 pytest-asyncio）。</span>
 <span class="sd">        在复杂的生产环境中，无法 100% 保证运行前后事件循环的状态不被破坏</span>
 
 <span class="sd">        :param strict_log: 是否启用严格日志，启用后事件循环中的未捕获异常都会输出错误日志，否则未捕获异常将只输出调试日志</span>
@@ -941,20 +963,6 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">on_loaded</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;给 bot 注册 :obj:`.BotLifeSpan.LOADED` 阶段 hook 的装饰器&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">LOADED</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">on_reloaded</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;给 bot 注册 :obj:`.BotLifeSpan.RESTARTED` 阶段 hook 的装饰器&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="n">BotLifeSpan</span><span class="o">.</span><span class="n">RESTARTED</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_restarted</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SyncOrAsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">AsyncCallable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
@@ -1021,7 +1029,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=dd0888fc"></script>
+</div><script src="../../../_static/documentation_options.js?v=738234d0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

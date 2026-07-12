@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="melobot" />
     <link rel="manifest" href="_static/site.webmanifest" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 --><title>索引 - melobot 3.4.0</title>
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 --><title>索引 - melobot 3.4.0.post19.dev0+6484821</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -169,7 +169,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">melobot 3.4.0</div></a>
+      <a href="index.html"><div class="brand">melobot 3.4.0.post19.dev0+6484821</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">melobot 3.4.0</span>
+  <span class="sidebar-brand-text">melobot 3.4.0.post19.dev0+6484821</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -221,8 +221,17 @@
 <li class="toctree-l2"><a class="reference internal" href="dive_in/adapter_extra.html">适配器层其他组件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dive_in/process_flow.html">事件处理流与机制</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dive_in/dependency_injection.html">依赖注入与特性</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dive_in/session_control.html">会话控制与机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dive_in/plugin_usage.html">插件机制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dive_in/session_control.html">会话控制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dive_in/plugin_usage.html">插件系统与进阶用法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dive_in/bot.html">bot 对象与相关接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dive_in/log.html">日志组件与日志修补</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dive_in/utils.html">实用组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dive_in/typ.html">类型工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dive_in/import_lazy.html">导入与惰性加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dive_in/context.html">上下文管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dive_in/meta.html">元信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dive_in/cli.html">CLI 界面</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dive_in/mp.html">多进程支持</a></li>
 </ul>
 </li>
 </ul>
@@ -671,8 +680,6 @@
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/melobot.handle.html#melobot.handle.Flow.add">add() （melobot.handle.Flow 方法）</a>
-</li>
         <li><a href="api/melobot.bot.html#melobot.bot.Bot.add_adapter">add_adapter() （melobot.bot.Bot 方法）</a>
 </li>
         <li><a href="api/melobot.bot.html#melobot.bot.Bot.add_flows">add_flows() （melobot.bot.Bot 方法）</a>
@@ -947,13 +954,15 @@
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/melobot.exceptions.html#melobot.exceptions.DependRuntimeError">DependRuntimeError</a>
+        <li><a href="api/melobot.exceptions.html#melobot.exceptions.DependResolveFailed">DependResolveFailed</a>
 </li>
         <li><a href="api/melobot.handle.html#melobot.handle.FlowRecordStage.DEPENDS_NOT_MATCH">DEPENDS_NOT_MATCH（melobot.handle.FlowRecordStage 属性）</a>
 </li>
         <li><a href="api/melobot.di.html#melobot.di.Depends">Depends（melobot.di 中的类）</a>
 </li>
         <li><a href="api/melobot.di.html#melobot.di.CbDepends.deps_callback">deps_callback() （melobot.di.CbDepends 方法）</a>
+</li>
+        <li><a href="api/melobot.exceptions.html#melobot.exceptions.ImportNameConflict.derive">derive() （melobot.exceptions.ImportNameConflict 方法）</a>
 </li>
         <li><a href="api/melobot.html#melobot.MetaInfo.desc">desc（melobot.MetaInfo 属性）</a>
 </li>
@@ -965,9 +974,7 @@
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupBanNoticeEvent.duration">duration（melobot.protocols.onebot.v11.adapter.event.GroupBanNoticeEvent 属性）</a>
 </li>
-        <li><a href="api/melobot.exceptions.html#melobot.exceptions.DynamicImpError">DynamicImpError</a>
-</li>
-        <li><a href="api/melobot.exceptions.html#melobot.exceptions.DynamicImpSpecEmpty">DynamicImpSpecEmpty</a>
+        <li><a href="api/melobot.exceptions.html#melobot.exceptions.DynImportError">DynImportError</a>
 </li>
     </ul></td>
   </tr></table>
@@ -1017,6 +1024,8 @@
 </li>
         <li><a href="api/melobot.log.html#melobot.log.GenericLogger.exception">exception() （melobot.log.GenericLogger 方法）</a>
 </li>
+        <li><a href="api/melobot.di.html#melobot.di.exclude">exclude()（在 melobot.di 模块中）</a>
+</li>
         <li><a href="api/melobot.di.html#melobot.di.Exclude">Exclude（melobot.di 中的类）</a>
 </li>
         <li><a href="api/melobot.utils.html#melobot.utils.parse.CmdArgFormatInfo.exc">exc（melobot.utils.parse.CmdArgFormatInfo 属性）</a>
@@ -1041,7 +1050,7 @@
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.GroupUploadNoticeEvent.file">file（melobot.protocols.onebot.v11.adapter.event.GroupUploadNoticeEvent 属性）</a>
 </li>
-        <li><a href="api/melobot.adapter.html#melobot.adapter.Adapter.filter_out">filter_out() （melobot.adapter.Adapter 方法）</a>
+        <li><a href="api/melobot.adapter.html#melobot.adapter.filter_out">filter_out()（在 melobot.adapter 模块中）</a>
 </li>
         <li><a href="api/melobot.mixin.html#melobot.mixin.FlagMixin.flag_check">flag_check() （melobot.mixin.FlagMixin 方法）</a>
 </li>
@@ -1433,6 +1442,14 @@
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ImageSendSegment">ImageSendSegment（melobot.protocols.onebot.v11.adapter.segment 中的类）</a>
 </li>
+        <li><a href="api/melobot.exceptions.html#melobot.exceptions.ImportNameConflict">ImportNameConflict</a>
+</li>
+        <li><a href="api/melobot.exceptions.html#melobot.exceptions.ImportSpecEmpty">ImportSpecEmpty</a>
+</li>
+        <li><a href="api/melobot.mp.html#melobot.mp.in_main_process">in_main_process()（在 melobot.mp 模块中）</a>
+</li>
+        <li><a href="api/melobot.mp.html#melobot.mp.in_melobot_sub_process">in_melobot_sub_process()（在 melobot.mp 模块中）</a>
+</li>
         <li><a href="api/melobot.handle.html#melobot.handle.FlowRecord.in_session">in_session（melobot.handle.FlowRecord 属性）</a>
 </li>
         <li><a href="api/melobot.ctx.html#melobot.ctx.EventOrigin.in_src">in_src（melobot.ctx.EventOrigin 属性）</a>
@@ -1440,8 +1457,6 @@
         <li><a href="api/melobot.log.html#melobot.log.GenericLogger.info">info() （melobot.log.GenericLogger 方法）</a>
 </li>
         <li><a href="api/melobot.log.html#melobot.log.LogLevel.INFO">INFO（melobot.log.LogLevel 属性）</a>
-</li>
-        <li><a href="api/melobot.plugin.html#melobot.plugin.PluginLifeSpan.INITED">INITED（melobot.plugin.PluginLifeSpan 属性）</a>
 </li>
         <li><a href="api/melobot.di.html#melobot.di.inject_deps">inject_deps()（在 melobot.di 模块中）</a>
 </li>
@@ -1497,10 +1512,10 @@
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event._MessageSender.is_group_admin">is_group_admin() （melobot.protocols.onebot.v11.adapter.event._MessageSender 方法）</a>
 </li>
-        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_group_admin">is_group_admin() （melobot.protocols.onebot.v11.adapter.event.NoticeEvent 方法）</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_group_admin">is_group_admin() （melobot.protocols.onebot.v11.adapter.event.NoticeEvent 方法）</a>
+</li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.MessageEvent.is_group_anonymous">is_group_anonymous() （melobot.protocols.onebot.v11.adapter.event.MessageEvent 方法）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.NoticeEvent.is_group_ban">is_group_ban() （melobot.protocols.onebot.v11.adapter.event.NoticeEvent 方法）</a>
@@ -1647,8 +1662,6 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.bot.html#melobot.bot.Bot.load_plugins_dirs">load_plugins_dirs() （melobot.bot.Bot 方法）</a>
 </li>
-        <li><a href="api/melobot.bot.html#melobot.bot.BotLifeSpan.LOADED">LOADED（melobot.bot.BotLifeSpan 属性）</a>
-</li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.LocationSegment">LocationSegment（melobot.protocols.onebot.v11.adapter.segment 中的类）</a>
 </li>
         <li><a href="api/melobot.utils.html#melobot.utils.lock">lock()（在 melobot.utils 模块中）</a>
@@ -1679,9 +1692,11 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.typ.html#melobot.typ.Color.magenta">magenta（melobot.typ.Color 属性）</a>
 </li>
-        <li><a href="api/melobot.html#melobot._meta.VersionInfo.major">major（melobot._meta.VersionInfo 属性）</a>
+        <li><a href="api/melobot.html#melobot.VersionInfo.major">major（melobot.VersionInfo 属性）</a>
 </li>
         <li><a href="api/melobot.utils.html#melobot.utils.match.Matcher.match">match() （melobot.utils.match.Matcher 方法）</a>
+</li>
+        <li><a href="api/melobot.di.html#melobot.di.match_event">match_event()（在 melobot.di 模块中）</a>
 </li>
         <li><a href="api/melobot.utils.html#melobot.utils.match.Matcher">Matcher（melobot.utils.match 中的类）</a>
 </li>
@@ -1828,11 +1843,11 @@
 </li>
         <li><a href="api/melobot.html#melobot.MetaInfo">MetaInfo（melobot 中的类）</a>
 </li>
-        <li><a href="api/melobot.html#melobot._meta.VersionInfo.micro">micro（melobot._meta.VersionInfo 属性）</a>
+        <li><a href="api/melobot.html#melobot.VersionInfo.micro">micro（melobot.VersionInfo 属性）</a>
 </li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.content.TextStyle.mime_type">mime_type（melobot.adapter.content.TextStyle 属性）</a>
 </li>
-        <li><a href="api/melobot.html#melobot._meta.VersionInfo.minor">minor（melobot._meta.VersionInfo 属性）</a>
+        <li><a href="api/melobot.html#melobot.VersionInfo.minor">minor（melobot.VersionInfo 属性）</a>
 </li>
         <li>
     module
@@ -1987,11 +2002,7 @@
 </li>
         <li><a href="api/melobot.handle.html#melobot.handle.on_full_match">on_full_match()（在 melobot.handle 模块中）</a>
 </li>
-        <li><a href="api/melobot.plugin.html#melobot.plugin.PluginPlanner.on_inited">on_inited（melobot.plugin.PluginPlanner 属性）</a>
-</li>
         <li><a href="console_api/console.handle.html#melobot.protocols.console.handle.on_input">on_input()（在 melobot.protocols.console.handle 模块中）</a>
-</li>
-        <li><a href="api/melobot.bot.html#melobot.bot.Bot.on_loaded">on_loaded（melobot.bot.Bot 属性）</a>
 </li>
         <li><a href="ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_message">on_message()（在 melobot.protocols.onebot.v11.handle 模块中）</a>
 </li>
@@ -1999,16 +2010,16 @@
 </li>
         <li><a href="ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_notice">on_notice()（在 melobot.protocols.onebot.v11.handle 模块中）</a>
 </li>
-        <li><a href="api/melobot.handle.html#melobot.handle.on_regex_match">on_regex_match()（在 melobot.handle 模块中）</a>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.PluginPlanner.on_ready">on_ready（melobot.plugin.PluginPlanner 属性）</a>
 </li>
-        <li><a href="api/melobot.bot.html#melobot.bot.Bot.on_reloaded">on_reloaded（melobot.bot.Bot 属性）</a>
+        <li><a href="api/melobot.handle.html#melobot.handle.on_regex_match">on_regex_match()（在 melobot.handle 模块中）</a>
 </li>
         <li><a href="ob_api/v11.handle.html#melobot.protocols.onebot.v11.handle.on_request">on_request()（在 melobot.protocols.onebot.v11.handle 模块中）</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.bot.html#melobot.bot.Bot.on_restarted">on_restarted（melobot.bot.Bot 属性）</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/melobot.io.html#melobot.io.AbstractSource.on_restarted">on_restarted（melobot.io.AbstractSource 属性）</a>
 </li>
         <li><a href="api/melobot.handle.html#melobot.handle.on_start_match">on_start_match()（在 melobot.handle 模块中）</a>
@@ -2169,6 +2180,8 @@
 </li>
         <li><a href="api/melobot.utils.html#melobot.utils.RWContext.read">read() （melobot.utils.RWContext 方法）</a>
 </li>
+        <li><a href="api/melobot.plugin.html#melobot.plugin.PluginLifeSpan.READY">READY（melobot.plugin.PluginLifeSpan 属性）</a>
+</li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.RecordRecvSegment">RecordRecvSegment（melobot.protocols.onebot.v11.adapter.segment 中的类）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.RecordSegment">RecordSegment（melobot.protocols.onebot.v11.adapter.segment 中的类）</a>
@@ -2176,6 +2189,8 @@
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.RecordSendSegment">RecordSendSegment（melobot.protocols.onebot.v11.adapter.segment 中的类）</a>
 </li>
         <li><a href="api/melobot.typ.html#melobot.typ.Color.red">red（melobot.typ.Color 属性）</a>
+</li>
+        <li><a href="api/melobot.di.html#melobot.di.ref">ref()（在 melobot.di 模块中）</a>
 </li>
         <li><a href="api/melobot.adapter.html#melobot.adapter.content.ReferContent">ReferContent（melobot.adapter.content 中的类）</a>
 </li>
@@ -2187,14 +2202,14 @@
 </li>
         <li><a href="api/melobot.session.html#melobot.session.Session.release">release() （melobot.session.Session 方法）</a>
 </li>
-        <li><a href="api/melobot.html#melobot._meta.VersionInfo.releaselevel">releaselevel（melobot._meta.VersionInfo 属性）</a>
+        <li><a href="api/melobot.html#melobot.VersionInfo.releaselevel">releaselevel（melobot.VersionInfo 属性）</a>
 </li>
         <li><a href="api/melobot.ctx.html#melobot.ctx.Context.remove">remove() （melobot.ctx.Context 方法）</a>
 </li>
-        <li><a href="api/melobot.adapter.html#melobot.adapter.content.TextStyle.reply_current">reply_current（melobot.adapter.content.TextStyle 属性）</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/melobot.adapter.html#melobot.adapter.content.TextStyle.reply_current">reply_current（melobot.adapter.content.TextStyle 属性）</a>
+</li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ReplySegment">ReplySegment（melobot.protocols.onebot.v11.adapter.segment 中的类）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event.FriendRequestEvent.request_type">request_type（melobot.protocols.onebot.v11.adapter.event.FriendRequestEvent 属性）</a>
@@ -2311,7 +2326,7 @@
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.echo.SendMsgEcho">SendMsgEcho（melobot.protocols.onebot.v11.adapter.echo 中的类）</a>
 </li>
-        <li><a href="api/melobot.html#melobot._meta.VersionInfo.serial">serial（melobot._meta.VersionInfo 属性）</a>
+        <li><a href="api/melobot.html#melobot.VersionInfo.serial">serial（melobot.VersionInfo 属性）</a>
 </li>
         <li><a href="api/melobot.exceptions.html#melobot.exceptions.SessionError">SessionError</a>
 </li>
@@ -2324,6 +2339,8 @@
         <li><a href="api/melobot.session.html#melobot.session.Session">Session（melobot.session 中的类）</a>
 </li>
         <li><a href="api/melobot.session.html#melobot.session.CompareInfo.session">session（melobot.session.CompareInfo 属性）</a>
+</li>
+        <li><a href="api/melobot.handle.html#melobot.handle.FlowStore.set">set() （melobot.handle.FlowStore 方法）</a>
 </li>
         <li><a href="api/melobot.plugin.html#melobot.plugin.AsyncShare.set">set() （melobot.plugin.AsyncShare 方法）</a>
 </li>
@@ -2414,6 +2431,8 @@
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.event._MessageSender.sex">sex（melobot.protocols.onebot.v11.adapter.event._MessageSender 属性）</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ShakeSegment">ShakeSegment（melobot.protocols.onebot.v11.adapter.segment 中的类）</a>
+</li>
+        <li><a href="api/melobot.exceptions.html#melobot.exceptions.ShareObjectCallbackFailed">ShareObjectCallbackFailed</a>
 </li>
         <li><a href="ob_api/v11.adapter.html#melobot.protocols.onebot.v11.adapter.segment.ShareSegment">ShareSegment（melobot.protocols.onebot.v11.adapter.segment 中的类）</a>
 </li>
@@ -2683,7 +2702,7 @@
 </li>
         <li><a href="api/melobot.html#melobot.MetaInfo.ver_info">ver_info（melobot.MetaInfo 属性）</a>
 </li>
-        <li><a href="api/melobot.html#melobot._meta.VersionInfo">VersionInfo（melobot._meta 中的类）</a>
+        <li><a href="api/melobot.html#melobot.VersionInfo">VersionInfo（melobot 中的类）</a>
 </li>
         <li><a href="api/melobot.html#melobot.MetaInfo.ver">ver（melobot.MetaInfo 属性）</a>
 </li>
@@ -2798,7 +2817,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=dd0888fc"></script>
+</div><script src="_static/documentation_options.js?v=738234d0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

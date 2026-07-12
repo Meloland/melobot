@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.log.base - melobot 3.4.0</title>
+        <title>melobot.log.base - melobot 3.4.0.post19.dev0+6484821</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.4.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.4.0.post19.dev0+6484821</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -191,7 +191,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.4.0</span>
+  <span class="sidebar-brand-text">melobot 3.4.0.post19.dev0+6484821</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -222,8 +222,17 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/adapter_extra.html">适配器层其他组件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/process_flow.html">事件处理流与机制</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/dependency_injection.html">依赖注入与特性</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/session_control.html">会话控制与机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/plugin_usage.html">插件机制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/session_control.html">会话控制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/plugin_usage.html">插件系统与进阶用法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/bot.html">bot 对象与相关接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/log.html">日志组件与日志修补</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/utils.html">实用组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/typ.html">类型工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/import_lazy.html">导入与惰性加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/context.html">上下文管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/meta.html">元信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/cli.html">CLI 界面</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/mp.html">多进程支持</a></li>
 </ul>
 </li>
 </ul>
@@ -341,9 +350,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NO_LOG_OBJ_SIGN</span><span class="p">,</span> <span class="n">FastRotatingFileHandler</span><span class="p">,</span> <span class="n">FastStreamHandler</span>
 
 <span class="c1"># 取消 better-exceptions 的猴子补丁</span>
-<span class="n">logging</span><span class="o">.</span><span class="n">_loggerClass</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># type:ignore[attr-defined]</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span>
-<span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">_loggerClass</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span>  <span class="c1"># type: ignore[attr-defined]</span>
 
 <span class="n">PATCHED_LOGGER_TAG</span> <span class="o">=</span> <span class="s2">&quot;__melobot_patched_logger__&quot;</span>
 
@@ -551,7 +558,7 @@
         <span class="n">two_stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">is_parallel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化日志器</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;创建一个日志器</span>
 
 <span class="sd">        :param name: 日志器的名称（唯一）</span>
 <span class="sd">        :param level: 日志等级</span>
@@ -569,7 +576,7 @@
 <span class="sd">            `legacy` 选项为 `True` 时此参数无效</span>
 
 <span class="sd">        :param two_stream: 当使用记录到文件功能时，是否分离“常规日志”和“问题日志”（warning, error, critical）到不同的文件</span>
-<span class="sd">        :param is_parallel: 日志渲染是否启用并行优化（可能导致日志小范围行间乱序）</span>
+<span class="sd">        :param is_parallel: 是否使用并行日志渲染。这可能导致日志小范围行间乱序，且如果日志器在多个线程共享，此选项仅在主线程中生效</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_handler_arr</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -858,7 +865,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=dd0888fc"></script>
+</div><script src="../../../_static/documentation_options.js?v=738234d0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

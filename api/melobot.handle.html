@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.handle - melobot 3.4.0</title>
+        <title>melobot.handle - melobot 3.4.0.post19.dev0+6484821</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -171,7 +171,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.4.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.4.0.post19.dev0+6484821</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -192,7 +192,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.4.0</span>
+  <span class="sidebar-brand-text">melobot 3.4.0.post19.dev0+6484821</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -223,8 +223,17 @@
 <li class="toctree-l2"><a class="reference internal" href="../dive_in/adapter_extra.html">适配器层其他组件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dive_in/process_flow.html">事件处理流与机制</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dive_in/dependency_injection.html">依赖注入与特性</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../dive_in/session_control.html">会话控制与机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../dive_in/plugin_usage.html">插件机制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dive_in/session_control.html">会话控制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dive_in/plugin_usage.html">插件系统与进阶用法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dive_in/bot.html">bot 对象与相关接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dive_in/log.html">日志组件与日志修补</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dive_in/utils.html">实用组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dive_in/typ.html">类型工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dive_in/import_lazy.html">导入与惰性加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dive_in/context.html">上下文管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dive_in/meta.html">元信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dive_in/cli.html">CLI 界面</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dive_in/mp.html">多进程支持</a></li>
 </ul>
 </li>
 </ul>
@@ -436,28 +445,9 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="melobot.handle.Flow.add">
-<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.base.FlowNode"><span class="pre">FlowNode</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.base.FlowNode"><span class="pre">FlowNode</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/base.html#Flow.add"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.Flow.add" title="Link to this definition">¶</a></dt>
-<dd><p>添加结点的装饰器</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.base.FlowNode"><em>FlowNode</em></a>) -- 添加的结点</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>结点本身</p>
-</dd>
-<dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.base.FlowNode"><em>FlowNode</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="melobot.handle.Flow.start">
 <span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.base.FlowNode"><span class="pre">FlowNode</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.base.FlowNode"><span class="pre">FlowNode</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/base.html#Flow.start"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.Flow.start" title="Link to this definition">¶</a></dt>
-<dd><p>与 <a class="reference internal" href="#melobot.handle.Flow.add" title="melobot.handle.Flow.add"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add()</span></code></a> 方法功能完全一致</p>
-<p>但此方法语义上更明确地表示添加的是起始结点。
-建议使用此方法装饰的结点，不要再添加前驱结点。</p>
+<dd><p>将某一结点标记为流起始结点的装饰器函数</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="#melobot.handle.FlowNode" title="melobot.handle.base.FlowNode"><em>FlowNode</em></a>) -- 添加的结点</p>
@@ -932,13 +922,14 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.flow_to">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">flow_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.base.Flow"><span class="pre">Flow</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/base.html#flow_to"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.flow_to" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">flow_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.base.Flow"><span class="pre">Flow</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">init_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/handle/base.html#flow_to"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.flow_to" title="Link to this definition">¶</a></dt>
 <dd><p>立即进入一个其他处理流（在处理流中使用）</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>flow</strong> (<a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.base.Flow"><em>Flow</em></a>)</p></li>
-<li><p><strong>share_store</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a>)</p></li>
+<li><p><strong>flow</strong> (<a class="reference internal" href="#melobot.handle.Flow" title="melobot.handle.base.Flow"><em>Flow</em></a>) -- 要进入的新处理流（不能是自身处理流）</p></li>
+<li><p><strong>share_store</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a>) -- 是否共享当前处理流的存储给新处理流</p></li>
+<li><p><strong>init_args</strong> (<em>Any</em>) -- 传递给新处理流的流存储的键值对（<cite>share_store=True</cite> 时此参数无效）</p></li>
 </ul>
 </dd>
 <dt class="field-even">返回类型<span class="colon">:</span></dt>
@@ -953,8 +944,24 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="melobot.handle.FlowStore">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">FlowStore</span></span><a class="reference internal" href="../_modules/melobot/ctx.html#FlowStore"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.FlowStore" title="Link to this definition">¶</a></dt>
-<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Hashable</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
 <p>流存储，将会在流运行前初始化，运行结束后销毁</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="melobot.handle.FlowStore.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="（在 Python v3.14）"><span class="pre">Hashable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/melobot/ctx.html#FlowStore.set"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.FlowStore.set" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="（在 Python v3.14）"><em>Hashable</em></a>)</p></li>
+<li><p><strong>value</strong> (<em>Any</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1127,17 +1134,24 @@
 <h2>依赖注入项<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="melobot.handle.get_flow_arg">
-<span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">get_flow_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="（在 Python v3.14）"><span class="pre">Hashable</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/melobot/handle/register.html#get_flow_arg"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.get_flow_arg" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">melobot.handle.</span></span><span class="sig-name descname"><span class="pre">get_flow_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg_idx:</span> <span class="pre">~typing.Hashable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type:</span> <span class="pre">type[~melobot.typ.base.T]</span> <span class="pre">|</span> <span class="pre">~typing_extensions.Any</span> <span class="pre">=</span> <span class="pre">&lt;object</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default:</span> <span class="pre">~typing_extensions.Any</span> <span class="pre">=</span> <span class="pre">&lt;object</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="reference internal" href="../_modules/melobot/handle/register.html#get_flow_arg"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#melobot.handle.get_flow_arg" title="Link to this definition">¶</a></dt>
 <dd><p>获取处理流存储中的值</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>arg_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="（在 Python v3.14）"><em>Hashable</em></a>) -- 键索引</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arg_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="（在 Python v3.14）"><em>Hashable</em></a>) -- 键索引</p></li>
+<li><p><strong>verify</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a>) -- 是否验证类型（启用此选项，必须通过类型注解或 <cite>type</cite> 参数提供类型）</p></li>
+<li><p><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="（在 Python v3.14）"><em>type</em></a><em>[</em><em>T</em><em>] </em><em>| </em><em>Any</em>) -- 作用如 <cite>verify</cite> 参数所述（此参数甚至可以是类型注解）</p></li>
+<li><p><strong>default</strong> (<em>Any</em>) -- 默认值。在获取值失败时不发出异常转而返回该值。
+但如果 <cite>verify=True</cite>，默认值仍然会参与类型验证过程。
+默认值类型验证失败时，将会发出类型验证失败异常，而不是继续执行</p></li>
+</ul>
 </dd>
 <dt class="field-even">返回<span class="colon">:</span></dt>
 <dd class="field-even"><p>对应的依赖项</p>
 </dd>
 <dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Any</em></p>
+<dd class="field-odd"><p><em>T</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1237,7 +1251,6 @@
 <li><a class="reference internal" href="#melobot.handle.Flow.is_active"><code class="docutils literal notranslate"><span class="pre">Flow.is_active()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.handle.Flow.set_guard"><code class="docutils literal notranslate"><span class="pre">Flow.set_guard()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.handle.Flow.link"><code class="docutils literal notranslate"><span class="pre">Flow.link()</span></code></a></li>
-<li><a class="reference internal" href="#melobot.handle.Flow.add"><code class="docutils literal notranslate"><span class="pre">Flow.add()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.handle.Flow.start"><code class="docutils literal notranslate"><span class="pre">Flow.start()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.handle.Flow.after"><code class="docutils literal notranslate"><span class="pre">Flow.after()</span></code></a></li>
 <li><a class="reference internal" href="#melobot.handle.Flow.before"><code class="docutils literal notranslate"><span class="pre">Flow.before()</span></code></a></li>
@@ -1282,7 +1295,10 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#id5">处理流状态</a><ul>
-<li><a class="reference internal" href="#melobot.handle.FlowStore"><code class="docutils literal notranslate"><span class="pre">FlowStore</span></code></a></li>
+<li><a class="reference internal" href="#melobot.handle.FlowStore"><code class="docutils literal notranslate"><span class="pre">FlowStore</span></code></a><ul>
+<li><a class="reference internal" href="#melobot.handle.FlowStore.set"><code class="docutils literal notranslate"><span class="pre">FlowStore.set()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#melobot.handle.FlowRecordStage"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage</span></code></a><ul>
 <li><a class="reference internal" href="#melobot.handle.FlowRecordStage.FLOW_GUARD_START"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.FLOW_GUARD_START</span></code></a></li>
 <li><a class="reference internal" href="#melobot.handle.FlowRecordStage.FLOW_GUARD_FINISH"><code class="docutils literal notranslate"><span class="pre">FlowRecordStage.FLOW_GUARD_FINISH</span></code></a></li>
@@ -1335,7 +1351,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=dd0888fc"></script>
+</div><script src="../_static/documentation_options.js?v=738234d0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

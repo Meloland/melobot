@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="会话控制与机制" href="session_control.html" /><link rel="prev" title="事件处理流与机制" href="process_flow.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="会话控制与管理" href="session_control.html" /><link rel="prev" title="事件处理流与机制" href="process_flow.html" />
         <link rel="canonical" href="/melobot/dive_in/dependency_injection.html" />
 
     <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>依赖注入与特性 - melobot 3.4.0</title>
+        <title>依赖注入与特性 - melobot 3.4.0.post19.dev0+6484821</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -171,7 +171,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.4.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.4.0.post19.dev0+6484821</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -192,7 +192,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.4.0</span>
+  <span class="sidebar-brand-text">melobot 3.4.0.post19.dev0+6484821</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -223,8 +223,17 @@
 <li class="toctree-l2"><a class="reference internal" href="adapter_extra.html">适配器层其他组件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="process_flow.html">事件处理流与机制</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">依赖注入与特性</a></li>
-<li class="toctree-l2"><a class="reference internal" href="session_control.html">会话控制与机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plugin_usage.html">插件机制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="session_control.html">会话控制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_usage.html">插件系统与进阶用法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bot.html">bot 对象与相关接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="log.html">日志组件与日志修补</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">实用组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="typ.html">类型工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="import_lazy.html">导入与惰性加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="context.html">上下文管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta.html">元信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html">CLI 界面</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp.html">多进程支持</a></li>
 </ul>
 </li>
 </ul>
@@ -363,9 +372,7 @@
 </div>
 <p>容易理解，实际上 <a class="reference internal" href="../api/melobot.di.html#melobot.di.Depends" title="melobot.di.Depends"><code class="xref py py-class docutils literal notranslate"><span class="pre">Depends</span></code></a> 包裹了可调用对象，并在 <code class="docutils literal notranslate"><span class="pre">func</span></code> 函数运行前自动调用 <code class="docutils literal notranslate"><span class="pre">get_val()</span></code> 以满足参数需求。</p>
 <p>不过，更鼓励使用 <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Annotated"><code class="docutils literal notranslate"><span class="pre">Annotated</span></code></a>，让依赖注入与类型注解完全兼容:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
 
 <span class="nd">@inject_deps</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_val</span><span class="p">)])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -640,7 +647,7 @@
 <p>但是需要满足以下条件：</p>
 <ol class="arabic simple">
 <li><p><a class="reference internal" href="../api/melobot.di.html#melobot.di.inject_deps" title="melobot.di.inject_deps"><code class="xref py py-func docutils literal notranslate"><span class="pre">inject_deps()</span></code></a> 以下，<code class="docutils literal notranslate"><span class="pre">func</span></code> 以上的所有装饰器（以下简称夹层装饰器），必须使用 <code class="docutils literal notranslate"><span class="pre">functools.wraps</span></code> 包装。否则将丢失 <code class="docutils literal notranslate"><span class="pre">func</span></code> 的注解信息，无法进行注入。</p></li>
-<li><p>夹层装饰器，不能修改 <code class="docutils literal notranslate"><span class="pre">func</span></code> 的参数性质（参数类型、个数、位置或名称）</p></li>
+<li><p>夹层装饰器，不能修改 <code class="docutils literal notranslate"><span class="pre">func</span></code> 的函数签名（参数类型、个数、位置或名称）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">func</span></code> 所有依赖，要在夹层装饰运行前就可被满足。因为 <a class="reference internal" href="../api/melobot.di.html#melobot.di.inject_deps" title="melobot.di.inject_deps"><code class="xref py py-func docutils literal notranslate"><span class="pre">inject_deps()</span></code></a> 尝试满足依赖时，夹层装饰还尚未运行。</p></li>
 </ol>
 <p>因此，如果可以，更建议将 <a class="reference internal" href="../api/melobot.di.html#melobot.di.inject_deps" title="melobot.di.inject_deps"><code class="xref py py-func docutils literal notranslate"><span class="pre">inject_deps()</span></code></a> 始终置于函数装饰的最内层。此时无需考虑以上限制：</p>
@@ -703,7 +710,7 @@
 <section id="id13">
 <h2>总结<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h2>
 <p>本篇主要说明了 melobot 的依赖注入机制与特性。</p>
-<p>下一篇将重点说明：会话控制。</p>
+<p>下一篇将重点说明：<a class="reference internal" href="session_control.html"><span class="doc std std-doc">会话控制与管理</span></a>。</p>
 </section>
 </section>
 
@@ -717,7 +724,7 @@
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">会话控制与机制</div>
+                <div class="title">会话控制与管理</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -795,7 +802,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=dd0888fc"></script>
+</div><script src="../_static/documentation_options.js?v=738234d0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -1,0 +1,577 @@
+<!doctype html>
+<html class="no-js" lang="zh-CN" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="日志组件与日志修补" href="log.html" /><link rel="prev" title="插件系统与进阶用法" href="plugin_usage.html" />
+        <link rel="canonical" href="/melobot/dive_in/bot.html" />
+
+    <link rel="icon" type="image/png" href="_static/favicon-48x48.png" sizes="48x48" />
+    <link rel="icon" type="image/svg+xml" href="_static/favicon.svg" />
+    <link rel="shortcut icon" href="_static/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="melobot" />
+    <link rel="manifest" href="_static/site.webmanifest" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
+        <title>bot 对象与相关接口 - melobot 3.4.0.post19.dev0+6484821</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+      }
+    }
+  }
+</style><style>article p > img {border: 1px solid #ccc;}</style>
+  </head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">melobot 3.4.0.post19.dev0+6484821</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <span class="sidebar-brand-text">melobot 3.4.0.post19.dev0+6484821</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">起步</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../intro/index.html">开始使用</a><input aria-label="Toggle navigation of 开始使用" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro/async-callable.html">异步可调用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/create-bot.html">开始创建机器人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-process.html">OneBot 事件处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/msg-action.html">OneBot 消息操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/action-echo.html">OneBot 行为操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/event-preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/use-plugin.html">插件系统的使用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/use-session.html">交互式处理与会话的使用</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">深入与最佳实践</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">开始探索</a><input aria-label="Toggle navigation of 开始探索" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="framework.html">整体架构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lifetime.html">bot 生命周期</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source_adapter.html">源与适配器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adapter_extra.html">适配器层其他组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="process_flow.html">事件处理流与机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dependency_injection.html">依赖注入与特性</a></li>
+<li class="toctree-l2"><a class="reference internal" href="session_control.html">会话控制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_usage.html">插件系统与进阶用法</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">bot 对象与相关接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="log.html">日志组件与日志修补</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">实用组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="typ.html">类型工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="import_lazy.html">导入与惰性加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="context.html">上下文管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta.html">元信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html">CLI 界面</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp.html">多进程支持</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">相关知识</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../ob_refer/index.html">OneBot 相关</a><input aria-label="Toggle navigation of OneBot 相关" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/onebot.html">OneBot 协议和实现</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/impl.html">OneBot 协议实现端类型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/event-action.html">OneBot 事件、行为和回应</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/msg.html">OneBot 消息内容的数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/forward-msg.html">OneBot 转发消息与消息结点</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/preprocess.html">OneBot 事件预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_refer/reverse-proxy.html">OneBot 反向代理</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">melobot API</a><input aria-label="Toggle navigation of melobot API" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.html">melobot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.bot.html">melobot.bot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.plugin.html">melobot.plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.adapter.html">melobot.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.io.html">melobot.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.protocol.html">melobot.protocols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.handle.html">melobot.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.di.html">melobot.di</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.session.html">melobot.session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.log.html">melobot.log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.utils.html">melobot.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.typ.html">melobot.typ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.exceptions.html">melobot.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.mp.html">melobot.mp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.ctx.html">melobot.ctx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/melobot.mixin.html">melobot.mixin</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../ob_api/index.html">protocols.onebot API</a><input aria-label="Toggle navigation of protocols.onebot API" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.html">v11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.const.html">v11.const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.adapter.html">v11.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.io.html">v11.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.handle.html">v11.handle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ob_api/v11.utils.html">v11.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../console_api/index.html">protocols.console API</a><input aria-label="Toggle navigation of protocols.console API" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../console_api/console.html">console</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../console_api/console.const.html">console.const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../console_api/console.adapter.html">console.adapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../console_api/console.io.html">console.io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../console_api/console.handle.html">console.handle</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">更多</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../update-log.html">更新日志</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../melobot-prev.html">melobot 历史版本</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/dive_in/bot.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/Meloland/melobot/tree/main/docs/source/dive_in/bot.md" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="bot">
+<h1>bot 对象与相关接口<a class="headerlink" href="#bot" title="Link to this heading">¶</a></h1>
+<p>前面的章节已经说明了如何创建 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot" title="melobot.bot.Bot"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bot</span></code></a>、添加协议栈、加载插件和启动程序。本篇从管理者的视角补充 bot 对象的特性：它何时完成配置、怎样在运行中的代码里取得它，以及怎样查询和扩展其已注册的组件。</p>
+<div class="note admonition">
+<p class="admonition-title">相关知识</p>
+<p>如果你还不熟悉创建和启动 bot 的基本流程，请先阅读<a class="reference internal" href="../intro/create-bot.html"><span class="doc std std-doc">开始创建机器人</span></a>；源、适配器和插件的详细用法分别在<a class="reference internal" href="source_adapter.html"><span class="doc std std-doc">源与适配器</span></a>和<a class="reference internal" href="plugin_usage.html"><span class="doc std std-doc">插件系统与进阶用法</span></a>中介绍。</p>
+</div>
+<section id="id1">
+<h2>实例名称与配置期<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p>创建 bot 时的 <code class="docutils literal notranslate"><span class="pre">name</span></code> 不只是展示名称，也是当前 Python 进程中 bot 实例的标识。同一时刻不能存在两个同名 bot：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span>
+
+<span class="n">main_bot</span> <span class="o">=</span> <span class="n">Bot</span><span class="p">(</span><span class="s2">&quot;main&quot;</span><span class="p">)</span>
+<span class="c1"># Bot(&quot;main&quot;)  # 抛出 BotError：同名实例已存在</span>
+<span class="n">test_bot</span> <span class="o">=</span> <span class="n">Bot</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>名称还会用于日志和生命周期 hook 的标识。因此，多 bot 程序应为每个实例提供稳定且不同的名称，不建议依赖默认值 <code class="docutils literal notranslate"><span class="pre">&quot;melobot&quot;</span></code>。</p>
+<section id="id2">
+<h3>配置会在首次加载插件时冻结<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>源和适配器必须在 bot 的<strong>配置期</strong>绑定。一个容易忽略的事实是：首次调用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 就会初始化 bot 的核心组件，不必等到调用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.run" title="melobot.bot.Bot.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a>。从这一刻开始，<a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.add_input" title="melobot.bot.Bot.add_input"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_input()</span></code></a>、<a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.add_output" title="melobot.bot.Bot.add_output"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_output()</span></code></a>、<a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.add_io" title="melobot.bot.Bot.add_io"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_io()</span></code></a> 和 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.add_adapter" title="melobot.bot.Bot.add_adapter"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_adapter()</span></code></a> 都不能再调用。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">PluginPlanner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">OneBotV11Protocol</span><span class="p">,</span> <span class="n">WSClient</span>
+
+<span class="n">bot</span> <span class="o">=</span> <span class="n">Bot</span><span class="p">(</span><span class="s2">&quot;main&quot;</span><span class="p">)</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">add_protocol</span><span class="p">(</span><span class="n">OneBotV11Protocol</span><span class="p">(</span><span class="n">WSClient</span><span class="p">(</span><span class="s2">&quot;ws://127.0.0.1:8080&quot;</span><span class="p">)))</span>
+
+<span class="c1"># 此调用会结束配置期</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">PluginPlanner</span><span class="p">(</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">))</span>
+
+<span class="c1"># bot.add_protocol(...)  # 错误：底层源、适配器已不能再绑定</span>
+</pre></div>
+</div>
+<p>这也是主程序通常采用“先添加所有协议支持，再加载插件”的原因。插件可以在启动后动态加载，但协议组件不支持以这种方式动态增删；若运行时需要启用或停用某项业务功能，应优先将它设计为插件或处理流。</p>
+<div class="tip admonition">
+<p class="admonition-title">提示</p>
+<p><a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.add_input" title="melobot.bot.Bot.add_input"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_input()</span></code></a>、<a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.add_output" title="melobot.bot.Bot.add_output"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_output()</span></code></a>、<a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.add_io" title="melobot.bot.Bot.add_io"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_io()</span></code></a>、<a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.add_adapter" title="melobot.bot.Bot.add_adapter"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_adapter()</span></code></a> 和 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.add_protocol" title="melobot.bot.Bot.add_protocol"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_protocol()</span></code></a> 都会返回 bot 本身，因此可以按配置顺序链式调用。</p>
+</div>
+</section>
+</section>
+<section id="id3">
+<h2>在当前上下文中获取 bot<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../api/melobot.bot.html#melobot.bot.get_bot" title="melobot.bot.get_bot"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_bot()</span></code></a> 返回当前执行上下文中的 bot。它适用于不方便通过参数接收 bot 的辅助函数，以及插件加载、生命周期 hook、事件处理流等由 bot 发起的执行过程。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.bot</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_bot</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cache_prefix</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># 此函数必须在 bot 的执行上下文中调用</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">get_bot</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:cache&quot;</span>
+</pre></div>
+</div>
+<p>在没有活动 bot 上下文的普通模块代码、独立脚本或自行创建且未继承上下文的线程中调用，会抛出 <a class="reference internal" href="../api/melobot.exceptions.html#melobot.exceptions.BotError" title="melobot.exceptions.BotError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BotError</span></code></a>。因此，不要让这类通用函数在导入时立刻调用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.get_bot" title="melobot.bot.get_bot"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_bot()</span></code></a>；将调用放在真正执行时更安全。</p>
+<p><code class="docutils literal notranslate"><span class="pre">melobot.bot</span></code> 模块还提供动态变量 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.bot" title="melobot.bot.bot"><code class="xref py py-data docutils literal notranslate"><span class="pre">bot</span></code></a>，它等价于在当前时刻调用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.get_bot" title="melobot.bot.get_bot"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_bot()</span></code></a>。例如下面的代码位于由 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.load_plugin" title="melobot.bot.Bot.load_plugin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_plugin()</span></code></a> 加载的插件模块中：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># __plugin__.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.bot</span><span class="w"> </span><span class="kn">import</span> <span class="n">bot</span>
+
+<span class="nd">@bot</span><span class="o">.</span><span class="n">on_started</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">report_started</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">bot</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bot</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 已启动&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这里的 <code class="docutils literal notranslate"><span class="pre">bot</span></code> 在模块被访问时依赖当前上下文，并不是一个可在任意位置使用的全局单例。对于事件处理结点和各种生命周期 hook，若只需要使用 bot，仍然更推荐直接声明 <code class="docutils literal notranslate"><span class="pre">Bot</span></code> 类型参数，让依赖注入完成获取：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">GenericLogger</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">GenericLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;正在初始化 </span><span class="si">{</span><span class="n">bot</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这种写法具有明确的依赖关系，也更便于测试。自动依赖注入的完整规则可参阅<a class="reference internal" href="dependency_injection.html"><span class="doc std std-doc">依赖注入与特性</span></a>。</p>
+</section>
+<section id="id4">
+<h2>查询已绑定的适配器<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id5">
+<h3>查询一个适配器<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<p><a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.get_adapter" title="melobot.bot.Bot.get_adapter"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_adapter()</span></code></a> 支持三种查询方式：协议字符串、适配器类型或过滤函数。没有匹配项时返回 <code class="docutils literal notranslate"><span class="pre">None</span></code>。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot.protocols.onebot.v11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span>
+
+<span class="c1"># 按协议标识查询</span>
+<span class="n">adapter</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">get_adapter</span><span class="p">(</span><span class="s2">&quot;OneBot-v11@Meloland&quot;</span><span class="p">)</span>
+
+<span class="c1"># 按具体适配器类型查询，类型提示会保留为 Adapter | None</span>
+<span class="n">adapter</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">get_adapter</span><span class="p">(</span><span class="n">Adapter</span><span class="p">)</span>
+
+<span class="c1"># 需要按运行时条件选择时使用过滤函数</span>
+<span class="n">adapter</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">get_adapter</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;@Meloland&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">type</span></code> 参数存在时会优先按类型或协议查询，<code class="docutils literal notranslate"><span class="pre">filter</span></code> 仅在不提供 <code class="docutils literal notranslate"><span class="pre">type</span></code> 时生效。若确实需要一组适配器，使用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.get_adapters" title="melobot.bot.Bot.get_adapters"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_adapters()</span></code></a>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 获得所有已绑定适配器的一个集合副本</span>
+<span class="n">all_adapters</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">get_adapters</span><span class="p">()</span>
+
+<span class="c1"># 获得满足条件的集合</span>
+<span class="n">active_protocols</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">get_adapters</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;OneBot&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>在事件处理函数中，若你想要的是<strong>产生当前事件的适配器</strong>，应直接将对应适配器类型声明为依赖，或读取事件的来源信息；不要按类型重新查询。后两种方式分别可获得精确类型和精确来源，详见<a class="reference internal" href="source_adapter.html"><span class="doc std std-doc">源与适配器</span></a>。</p>
+</section>
+</section>
+<section id="id6">
+<h2>运行时添加处理流<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<p>插件中的处理流会在插件就绪时自动加入 bot。对于少数确实需要动态启用功能的场景，可使用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.add_flows" title="melobot.bot.Bot.add_flows"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_flows()</span></code></a> 直接注册一个或多个 <a class="reference internal" href="../api/melobot.handle.html#melobot.handle.Flow" title="melobot.handle.Flow"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flow</span></code></a>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">on_start_match</span><span class="p">,</span> <span class="n">send_text</span>
+
+<span class="nd">@on_start_match</span><span class="p">(</span><span class="s2">&quot;.health&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">health_check</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;ok&quot;</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">enable_health_check</span><span class="p">(</span><span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># health_check 此前没有交给 PluginPlanner</span>
+    <span class="n">bot</span><span class="o">.</span><span class="n">add_flows</span><span class="p">(</span><span class="n">health_check</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>注册后，处理流会参与<strong>之后收到的事件</strong>分发；已经开始分发的事件不会回头执行新流。此接口不是线程安全的，应在单一事件循环的受控位置调用，例如启动 hook、处理流或插件就绪 hook 中。</p>
+<p>处理流一旦无需继续工作，可以调用其 <a class="reference internal" href="../api/melobot.handle.html#melobot.handle.Flow.dismiss" title="melobot.handle.Flow.dismiss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dismiss()</span></code></a> 方法停用：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">health_check</span><span class="o">.</span><span class="n">dismiss</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>停用的流不再处理新事件，且不能重新启用。需要恢复同类功能时，创建并注册新的流对象。处理流的优先级、阻断传播和并发规则请参考<a class="reference internal" href="process_flow.html"><span class="doc std std-doc">事件处理流与机制</span></a>。</p>
+</section>
+<section id="id7">
+<h2>等待事件完成分发<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.wait_finish" title="melobot.bot.Bot.wait_finish"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wait_finish()</span></code></a> 是面向适配器扩展等底层场景的异步接口。它等待一个已经交给该 bot 分发器的事件，直到所有能够处理它的流都完成，或事件不再向更低优先级传播。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">melobot</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">melobot.adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">after_dispatch</span><span class="p">(</span><span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 前提：event 已经被投入 bot 的分发器</span>
+    <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">wait_finish</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    <span class="c1"># 此处再执行依赖于全部处理结果的后续操作</span>
+</pre></div>
+</div>
+<p>通常而言，插件中的事件处理函数不要使用它：调用者本身就是待完成的处理流之一，在其中等待同一事件会造成死锁。普通业务逻辑应让处理结果沿处理流、会话或插件共享对象传递；只有自定义协议适配器等“事件提交者”才应在提交事件之后等待它结束。</p>
+</section>
+<section id="id8">
+<h2>其他查询与通信接口<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.get_plugins" title="melobot.bot.Bot.get_plugins"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_plugins()</span></code></a> 可返回已加载插件的名称列表，<a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.get_share" title="melobot.bot.Bot.get_share"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_share()</span></code></a> 可按“插件名 + 共享对象标识”取得跨插件通信对象。后者属于底层接口，动态按名称查找时很有用；常规跨插件调用仍建议使用 <code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">pinit</span></code> 生成的带类型提示接口。具体示例和边界条件请参阅<a class="reference internal" href="plugin_usage.html#share-object-usage"><span class="std std-ref">共享对象的定义和基本使用</span></a>。</p>
+</section>
+<section id="id9">
+<h2>总结<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<p>bot 对象既是程序的配置入口，也是运行时组件的统一查询入口。</p>
+<p>实践中应牢记三点：先完成协议配置再加载插件；在受控上下文中获取当前 bot；将动态业务功能组织为处理流或插件，而不是尝试在运行期修改协议组件。</p>
+<p>下一篇将介绍：<a class="reference internal" href="log.html"><span class="doc std std-doc">日志组件与日志修补</span></a>。</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="log.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">日志组件与日志修补</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="plugin_usage.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">插件系统与进阶用法</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, contributors of this doc
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/Meloland/melobot" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">bot 对象与相关接口</a><ul>
+<li><a class="reference internal" href="#id1">实例名称与配置期</a><ul>
+<li><a class="reference internal" href="#id2">配置会在首次加载插件时冻结</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">在当前上下文中获取 bot</a></li>
+<li><a class="reference internal" href="#id4">查询已绑定的适配器</a><ul>
+<li><a class="reference internal" href="#id5">查询一个适配器</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6">运行时添加处理流</a></li>
+<li><a class="reference internal" href="#id7">等待事件完成分发</a></li>
+<li><a class="reference internal" href="#id8">其他查询与通信接口</a></li>
+<li><a class="reference internal" href="#id9">总结</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=738234d0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    </body>
+</html>

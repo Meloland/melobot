@@ -5,6 +5,58 @@ def f(s): print(f"([{s[-40:][:7]}]({s[:-33]}))")
 
 # 更新日志
 
+## v3.5.0
+
+### ⏩变更
+
+- [core] 部分生命周期组件已移除，请使用他们的替代品：
+
+
+```shell
+# 原始组件 -> 替代组件（~ 为 melobot 模块）
+~.bot.BotLifeSpan.LOADED            ->  ~.bot.BotLifeSpan.STARTED
+~.bot.BotLifeSpan.RELOADED          ->  ~.bot.BotLifeSpan.RESTARTED
+~.plugin.PluginLifeSpan.INITED      ->  ~.plugin.PluginLifeSpan.READY
+
+~.bot.Bot.on_loaded()               ->  ~.bot.Bot.on_started()
+~.bot.Bot.on_reloaded()             ->  ~.bot.Bot.on_restarted()
+~.plugin.PluginPlanner.on_inited()  ->  ~.plugin.PluginPlanner.on_ready()
+```
+
+- [core] {meth}`~.Bot.load_plugin` 方法的 `load_depth` 参数现在是仅位置参数
+
+- [core] {class}`.SyncShare` 和 {class}`.AsyncShare` 错误的初始化参数名 `callabck` 已更正为 `callback`
+
+- [core] {func}`.get_flow_arg` 现在提供更多可用选项。具体参考：[get_flow_arg](#get_flow_arg_doc)
+
+- [core] {func}`.get_session_arg` 现在提供更多可用选项。具体参考：[get_session_arg](#get_session_arg_doc)
+
+- [core] `Flow.add()` 方法已移除，请使用完全等价的 {meth}`.Flow.start` 方法
+
+- [core] {func}`.filter_out` 不再是适配器的实例方法，而是一个独立的函数。具体参考：[filter_out](#filter_out_doc)
+
+### ✨新增
+
+- [core] 现在可以向插件提供初始化参数，在插件就绪回调中接收参数。使用方法：[插件初始化参数](#plugin_init_args)
+
+- [core] 现在依赖注入提供简略方法：{func}`.exclude`, {func}`.ref`, {func}`.match_event`。具体参考：[依赖注入简略方法](#di_simplified_func)
+
+- [core] 进入子流方法 {func}`.flow_to` 现在可提供初始化参数，可将数据传递给子流的流存储。具体参考：[进入子流并传递参数](#flow_to_with_init_args)
+
+- [core] 现在提供 {class}`.ShareObjectCallbackFailed` 作为共享对象回调执行失败的专属异常。具体参考：[共享对象的使用](#share_object_usage)
+
+- [core] {class}`.TextEvent`, {func}`.filter_out`, {func}`.lazy_action` 已可以通过顶级命名空间 `melobot` 导入。具体参考：[顶级命令空间](./api/index)
+
+### 👍修复
+
+- [core] melobot 内置日志器 {class}`~.melobot.log.Logger` 现在能在多线程环境正常工作
+
+- [core] 导入插件时如果命名空间冲突，现在可以发出有用的异常提示。具体参考：[插件加载深度](#plugin_load_depth)
+
+### 其他
+
+文档勘误及不重要变更，参考完整记录：[3.4.0...3.5.0](https://github.com/Meloland/melobot/compare/3.4.0...3.5.0)
+
 ## v3.4.0
 
 ### ⏩变更

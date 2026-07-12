@@ -13,7 +13,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>melobot.handle.base - melobot 3.4.0</title>
+        <title>melobot.handle.base - melobot 3.4.0.post19.dev0+6484821</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -170,7 +170,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">melobot 3.4.0</div></a>
+      <a href="../../../index.html"><div class="brand">melobot 3.4.0.post19.dev0+6484821</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -191,7 +191,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.4.0</span>
+  <span class="sidebar-brand-text">melobot 3.4.0.post19.dev0+6484821</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -222,8 +222,17 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/adapter_extra.html">适配器层其他组件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/process_flow.html">事件处理流与机制</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../dive_in/dependency_injection.html">依赖注入与特性</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/session_control.html">会话控制与机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/plugin_usage.html">插件机制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/session_control.html">会话控制与管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/plugin_usage.html">插件系统与进阶用法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/bot.html">bot 对象与相关接口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/log.html">日志组件与日志修补</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/utils.html">实用组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/typ.html">类型工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/import_lazy.html">导入与惰性加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/context.html">上下文管理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/meta.html">元信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/cli.html">CLI 界面</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dive_in/mp.html">多进程支持</a></li>
 </ul>
 </li>
 </ul>
@@ -320,7 +329,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_task</span><span class="p">,</span> <span class="n">get_running_loop</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">NoReturn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">NoReturn</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..adapter.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..ctx</span><span class="w"> </span><span class="kn">import</span> <span class="n">BotCtx</span><span class="p">,</span> <span class="n">EventCompletion</span><span class="p">,</span> <span class="n">FlowCtx</span><span class="p">,</span> <span class="n">FlowRecords</span>
@@ -381,11 +390,7 @@
                     <span class="n">records</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">NODE_FINISH</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
                 <span class="k">except</span> <span class="n">DependNotMatched</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="n">ret</span> <span class="o">=</span> <span class="kc">False</span>
-                    <span class="n">records</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                        <span class="n">RecordStage</span><span class="o">.</span><span class="n">DEPENDS_NOT_MATCH</span><span class="p">,</span>
-                        <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span>
-                        <span class="n">prompt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Real(</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">real_type</span><span class="si">}</span><span class="s2">) &lt;=&gt; Annotation(</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">hint</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
-                    <span class="p">)</span>
+                    <span class="n">records</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">RecordStage</span><span class="o">.</span><span class="n">DEPENDS_NOT_MATCH</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
                 <span class="k">if</span> <span class="n">ret</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">next_valid</span><span class="p">:</span>
                     <span class="k">await</span> <span class="n">nextn</span><span class="p">()</span>
@@ -577,30 +582,23 @@
         <span class="k">return</span> <span class="n">new_flow</span></div>
 
 
-<div class="viewcode-block" id="Flow.add">
-<a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.Flow.add">[文档]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowNode</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;添加结点的装饰器</span>
-
-<span class="sd">        :param node: 添加的结点</span>
-<span class="sd">        :return: 结点本身</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">node</span></div>
-
+    <span class="k">def</span><span class="w"> </span><span class="nf">_safe_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_from</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="n">FlowNode</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_from</span><span class="p">,</span> <span class="n">FlowNode</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">FlowError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_from</span><span class="si">}</span><span class="s2"> 不是有效的流结点&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">FlowNode</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">FlowError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">to</span><span class="si">}</span><span class="s2"> 既不是有效的流结点，又不是空值&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">_from</span><span class="p">,</span> <span class="n">to</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Flow.start">
 <a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.Flow.start">[文档]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowNode</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;与 :meth:`add` 方法功能完全一致</span>
-
-<span class="sd">        但此方法语义上更明确地表示添加的是起始结点。</span>
-<span class="sd">        建议使用此方法装饰的结点，不要再添加前驱结点。</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;将某一结点标记为流起始结点的装饰器函数</span>
 
 <span class="sd">        :param node: 添加的结点</span>
 <span class="sd">        :return: 结点本身</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_safe_add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span></div>
 
 
 <div class="viewcode-block" id="Flow.after">
@@ -613,7 +611,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">after_wrapped</span><span class="p">(</span><span class="n">next_node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowNode</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">next_node</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_safe_add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">next_node</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">next_node</span>
 
         <span class="k">return</span> <span class="n">after_wrapped</span></div>
@@ -629,7 +627,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">before_wrapped</span><span class="p">(</span><span class="n">pre_node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowNode</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pre_node</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_safe_add</span><span class="p">(</span><span class="n">pre_node</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">pre_node</span>
 
         <span class="k">return</span> <span class="n">before_wrapped</span></div>
@@ -645,7 +643,7 @@
 
         <span class="k">def</span><span class="w"> </span><span class="nf">merge_wrapped</span><span class="p">(</span><span class="n">next_node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowNode</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">next_node</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_safe_add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">next_node</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">next_node</span>
 
         <span class="k">return</span> <span class="n">merge_wrapped</span></div>
@@ -661,7 +659,7 @@
 
         <span class="k">def</span><span class="w"> </span><span class="nf">fork_wrapped</span><span class="p">(</span><span class="n">pre_node</span><span class="p">:</span> <span class="n">FlowNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlowNode</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pre_node</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_safe_add</span><span class="p">(</span><span class="n">pre_node</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">pre_node</span>
 
         <span class="k">return</span> <span class="n">fork_wrapped</span></div>
@@ -765,12 +763,22 @@
 
 <div class="viewcode-block" id="flow_to">
 <a class="viewcode-back" href="../../../api/melobot.handle.html#melobot.handle.flow_to">[文档]</a>
-<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">flow_to</span><span class="p">(</span><span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">share_store</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;立即进入一个其他处理流（在处理流中使用）&quot;&quot;&quot;</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">flow_to</span><span class="p">(</span><span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">share_store</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">**</span><span class="n">init_args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;立即进入一个其他处理流（在处理流中使用）</span>
+
+<span class="sd">    :param flow: 要进入的新处理流（不能是自身处理流）</span>
+<span class="sd">    :param share_store: 是否共享当前处理流的存储给新处理流</span>
+<span class="sd">    :param init_args: 传递给新处理流的流存储的键值对（`share_store=True` 时此参数无效）</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">status</span> <span class="o">=</span> <span class="n">_FLOW_CTX</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">flow</span> <span class="ow">is</span> <span class="n">status</span><span class="o">.</span><span class="n">flow</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">FlowError</span><span class="p">(</span><span class="s2">&quot;无法在处理流中进入自身处理流&quot;</span><span class="p">)</span>
-    <span class="k">await</span> <span class="n">flow</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">completion</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">status</span><span class="o">.</span><span class="n">records</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">store</span> <span class="k">if</span> <span class="n">share_store</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+    <span class="k">await</span> <span class="n">flow</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span>
+        <span class="n">status</span><span class="o">.</span><span class="n">completion</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+        <span class="n">status</span><span class="o">.</span><span class="n">records</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">.</span><span class="n">store</span> <span class="k">if</span> <span class="n">share_store</span> <span class="k">else</span> <span class="n">FlowStore</span><span class="p">(</span><span class="o">**</span><span class="n">init_args</span><span class="p">),</span>
+    <span class="p">)</span></div>
 
 </pre></div>
         </article>
@@ -811,7 +819,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=dd0888fc"></script>
+</div><script src="../../../_static/documentation_options.js?v=738234d0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
