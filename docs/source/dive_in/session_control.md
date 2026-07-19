@@ -413,7 +413,7 @@ from melobot.utils import _if, ctx
 async with _(...) -> None: ...
 ```
 
-当然 {func}`._if` 装饰器也可以在 {func}`.ctx` 之下，这取决于你的需求。
+当然 {func}`.if_` 装饰器也可以在 {func}`.ctx` 之下，这取决于你的需求。
 
 ### 暂停等待
 
@@ -489,8 +489,6 @@ async def handler() -> None:
 ```
 
 这些动态属性会自动更新。但注意它们只在会话上下文中可用，在模块顶级 `from melobot.session import session` 会失败。
-
-以及不要赋值给新变量，新变量显然不会自动更新。
 
 ## 会话中的依赖注入
 
