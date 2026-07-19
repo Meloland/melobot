@@ -13,6 +13,8 @@ from typing_extensions import Any
 from melobot._run import CLI_LAST_EXIT_CODE, CLI_RUN_ALIVE_FLAG, CLI_RUN_FLAG
 from melobot.typ import ExitCode
 
+from .version import PROG_NAME
+
 
 def main(args: Namespace) -> None:
     if not args.entry_file.endswith(".py"):
@@ -26,7 +28,7 @@ def main(args: Namespace) -> None:
     except FileNotFoundError:
         raise FileNotFoundError(f"不存在的入口文件：{args.entry_file}")
 
-    cmd = [sys.executable, entry]
+    cmd = [sys.executable, entry, *args.bot_args]
     cwd = Path.cwd().resolve().as_posix()
     os.environ[CLI_RUN_FLAG] = "1"
     tmp_dir = Path(tempfile.mkdtemp()).resolve()
@@ -61,7 +63,7 @@ def main(args: Namespace) -> None:
                 break
 
             if retcode == ExitCode.RESTART.value:
-                print("\n>>> [mb-cli] 正在重启 Bot 主程序\n")
+                print(f"[{PROG_NAME}] 正在重启 Bot 主程序\n")
                 os.environ[CLI_LAST_EXIT_CODE] = str(ExitCode.RESTART.value)
                 continue
 
@@ -69,8 +71,8 @@ def main(args: Namespace) -> None:
                 break
 
             print()
-            print(f">>> [mb-cli] Bot 主程序返回了意料之外的退出码: {retcode}")
-            print(">>> [mb-cli] 若提示“已安全停止运行”，则无需关注此警告")
+            print(f"[{PROG_NAME}] Bot 主程序返回了意料之外的退出码: {retcode}")
+            print(f"[{PROG_NAME}] 若提示“已安全停止运行”，则无需关注此警告")
             break
 
     finally:

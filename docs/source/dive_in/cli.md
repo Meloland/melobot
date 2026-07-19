@@ -35,9 +35,16 @@ mb pinit -d 2 ./plugins/weather
 mb run bot.py
 # .py 后缀可省略
 mb run bot
+
+# 将参数传给 bot 程序
+mb run bot.py -- --debug
+# 也可以传递多个参数
+mb run bot.py -- --config ./config.toml --log-level debug
 ```
 
 `mb run` 会以子进程运行入口脚本，并转发其标准输入、输出和错误输出。当 bot 调用 {meth}`~.Bot.restart` 时，子进程以特定退出码结束，`mb run` 随即重新启动它；正常停止则结束命令。
+
+入口文件之后的参数会传递给 bot 程序。为了避免和 `mb run` 自身的选项混淆，请使用 `--` 分隔；例如 `mb run bot.py -- --debug` 在 bot 中得到的 `sys.argv` 会包含 `--debug`。
 
 重启能力仅在入口脚本通过 `mb run` 启动且进程中只运行一个 bot 时有效。若只是希望普通启动，直接执行 `python bot.py` 仍然完全可行，但 `Bot.restart()` 不可用。
 
@@ -54,9 +61,14 @@ mb dev bot.py
 
 # 只监测指定目录或文件
 mb dev bot.py --watch src plugins
+
+# 将参数传给 bot 程序
+mb dev bot.py -- --debug
+# 同时指定监测路径和 bot 参数
+mb dev bot.py --watch src plugins -- --config ./config.toml
 ```
 
-`mb dev` 同样以子进程运行入口脚本，并支持 `Bot.restart()`；此外，它会递归监测 `--watch` 提供的路径。检测到创建、修改、移动或删除后，会停止当前子进程并重新启动。`--watch` 未提供参数时默认监测当前目录 `.`。
+`mb dev` 同样以子进程运行入口脚本，并支持 `Bot.restart()`；此外，它会递归监测 `--watch` 提供的路径。检测到创建、修改、移动或删除后，会停止当前子进程并重新启动。`--watch` 未提供参数时默认监测当前目录 `.`。入口文件之后的参数会传递给 bot 程序，需要传递选项时请使用 `--` 分隔。
 
 开发模式适合本地迭代插件和处理流。生产环境通常使用进程管理器、容器编排或发布系统完成重启，不建议依赖文件监测器。
 
@@ -67,8 +79,8 @@ mb dev bot.py --watch src plugins
 | `mb --help` | 查看命令帮助 |
 | `mb --version` / `mb -v` | 查看 CLI 与 melobot 版本 |
 | `mb pinit [-d 深度] <插件目录>...` | 生成插件入口与类型接口 |
-| `mb run <入口文件>` | 运行 bot，支持程序主动重启 |
-| `mb dev <入口文件> [-w 路径...]` | 开发模式运行，支持主动重启和文件变动自动重载 |
+| `mb run <入口文件> [-- <参数>...]` | 运行 bot，支持程序主动重启并传递参数 |
+| `mb dev <入口文件> [-w 路径...] [-- <参数>...]` | 开发模式运行，支持主动重启、自动重载和参数传递 |
 
 ## 总结
 
