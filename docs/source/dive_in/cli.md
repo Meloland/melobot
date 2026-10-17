@@ -72,6 +72,19 @@ mb dev bot.py --watch src plugins -- --config ./config.toml
 
 开发模式适合本地迭代插件和处理流。生产环境通常使用进程管理器、容器编排或发布系统完成重启，不建议依赖文件监测器。
 
+## 停服与异常诊断
+
+`mb run` 和 `mb dev` 收到 SIGINT 或 SIGTERM 后，会通知 bot 停止并等待子进程退出。重复信号不会重复等待或因停止标记已删除而报错。停服请求优先于程序主动重启；在开发模式下，也优先于文件变动触发的重载。
+
+melobot 默认隐藏异常回溯中的框架内部调用。排查 CLI 或框架自身的异常时，可以在启动命令前设置 `MELOBOT_EXC_SHOW_INTERNAL=1`，显示完整内部调用栈：
+
+```shell
+MELOBOT_EXC_SHOW_INTERNAL=1 mb run bot.py
+MELOBOT_EXC_SHOW_INTERNAL=1 uv run mb dev bot.py -- --debug
+```
+
+PowerShell 中可先执行 `$env:MELOBOT_EXC_SHOW_INTERNAL = "1"`，再运行相同的 `mb` 命令。
+
 ## 命令速查
 
 | 命令 | 用途 |
