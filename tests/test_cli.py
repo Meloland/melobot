@@ -22,11 +22,15 @@ def test_run_passes_arguments_after_separator_to_bot() -> None:
     assert args.bot_args == ["--debug", "--config", "config.toml"]
 
 
-def test_run_help_is_still_handled_by_mb() -> None:
+def test_run_help_is_still_handled_by_mb(capsys) -> None:
     with pytest.raises(SystemExit) as exc_info:
         parser.parse_args(["run", "bot.py", "--help"])
 
     assert exc_info.value.code == 0
+    captured = capsys.readouterr()
+    assert "usage: mb run" in captured.out
+    assert "传递给 bot 程序的参数" in captured.out
+    assert not captured.err
 
 
 def test_run_parser_has_a_list_of_bot_arguments() -> None:
@@ -274,12 +278,15 @@ def test_shutdown_signals_register_and_restore_sigbreak(monkeypatch):
 
 
 @pytest.mark.parametrize("module", [run, dev], ids=["run", "dev"])
-def test_cli_restart_preserves_arguments_and_signal_handler(tmp_path, monkeypatch, module):
+def test_cli_restart_preserves_arguments_and_signal_handler(tmp_path, monkeypatch, module, capsys):
     harness = _cli_harness(module, tmp_path, monkeypatch, codes=(2, 0))
     previous = signal.getsignal(signal.SIGTERM)
 
     module.main(harness.args)
 
+    captured = capsys.readouterr()
+    assert captured.out.count("正在重启 Bot 主程序") == 1
+    assert not captured.err
     assert len(harness.launches) == 2
     assert harness.launches[0][0] == harness.launches[1][0]
     assert harness.launches[1][0][-1] == "--debug"
@@ -391,7 +398,7 @@ def test_dev_does_not_join_observer_when_start_fails(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("stop", [False, True])
-def test_dev_reload_and_shutdown_priority(tmp_path, monkeypatch, stop):
+def test_dev_reload_and_shutdown_priority(tmp_path, monkeypatch, stop, capsys):
     harness = _cli_harness(dev, tmp_path, monkeypatch, codes=(0, 0))
     wait = dev.concurrent.futures.wait
 
@@ -405,6 +412,9 @@ def test_dev_reload_and_shutdown_priority(tmp_path, monkeypatch, stop):
     monkeypatch.setattr(dev.concurrent.futures, "wait", reload_or_stop)
     dev.main(harness.args)
 
+    captured = capsys.readouterr()
+    assert captured.out.count("正在重启 Bot 主程序") == (0 if stop else 1)
+    assert not captured.err
     assert len(harness.launches) == (1 if stop else 2)
     assert not Path(os.environ[CLI_RUN_ALIVE_FLAG]).parent.exists()
 
