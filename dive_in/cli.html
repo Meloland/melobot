@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>CLI 界面 - melobot 3.5.0</title>
+        <title>CLI 界面 - melobot 3.5.0.post9.dev0+529882a</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -171,7 +171,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.5.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.5.0.post9.dev0+529882a</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -192,7 +192,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.5.0</span>
+  <span class="sidebar-brand-text">melobot 3.5.0.post9.dev0+529882a</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -366,9 +366,15 @@ mb<span class="w"> </span>pinit<span class="w"> </span>-d<span class="w"> </span
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mb<span class="w"> </span>run<span class="w"> </span>bot.py
 <span class="c1"># .py 后缀可省略</span>
 mb<span class="w"> </span>run<span class="w"> </span>bot
+
+<span class="c1"># 将参数传给 bot 程序</span>
+mb<span class="w"> </span>run<span class="w"> </span>bot.py<span class="w"> </span>--<span class="w"> </span>--debug
+<span class="c1"># 也可以传递多个参数</span>
+mb<span class="w"> </span>run<span class="w"> </span>bot.py<span class="w"> </span>--<span class="w"> </span>--config<span class="w"> </span>./config.toml<span class="w"> </span>--log-level<span class="w"> </span>debug
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">run</span></code> 会以子进程运行入口脚本，并转发其标准输入、输出和错误输出。当 bot 调用 <a class="reference internal" href="../api/melobot.bot.html#melobot.bot.Bot.restart" title="melobot.bot.Bot.restart"><code class="xref py py-meth docutils literal notranslate"><span class="pre">restart()</span></code></a> 时，子进程以特定退出码结束，<code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">run</span></code> 随即重新启动它；正常停止则结束命令。</p>
+<p>入口文件之后的参数会传递给 bot 程序。为了避免和 <code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">run</span></code> 自身的选项混淆，请使用 <code class="docutils literal notranslate"><span class="pre">--</span></code> 分隔；例如 <code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">run</span> <span class="pre">bot.py</span> <span class="pre">--</span> <span class="pre">--debug</span></code> 在 bot 中得到的 <code class="docutils literal notranslate"><span class="pre">sys.argv</span></code> 会包含 <code class="docutils literal notranslate"><span class="pre">--debug</span></code>。</p>
 <p>重启能力仅在入口脚本通过 <code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">run</span></code> 启动且进程中只运行一个 bot 时有效。若只是希望普通启动，直接执行 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">bot.py</span></code> 仍然完全可行，但 <code class="docutils literal notranslate"><span class="pre">Bot.restart()</span></code> 不可用。</p>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
@@ -382,13 +388,28 @@ mb<span class="w"> </span>dev<span class="w"> </span>bot.py
 
 <span class="c1"># 只监测指定目录或文件</span>
 mb<span class="w"> </span>dev<span class="w"> </span>bot.py<span class="w"> </span>--watch<span class="w"> </span>src<span class="w"> </span>plugins
+
+<span class="c1"># 将参数传给 bot 程序</span>
+mb<span class="w"> </span>dev<span class="w"> </span>bot.py<span class="w"> </span>--<span class="w"> </span>--debug
+<span class="c1"># 同时指定监测路径和 bot 参数</span>
+mb<span class="w"> </span>dev<span class="w"> </span>bot.py<span class="w"> </span>--watch<span class="w"> </span>src<span class="w"> </span>plugins<span class="w"> </span>--<span class="w"> </span>--config<span class="w"> </span>./config.toml
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">dev</span></code> 同样以子进程运行入口脚本，并支持 <code class="docutils literal notranslate"><span class="pre">Bot.restart()</span></code>；此外，它会递归监测 <code class="docutils literal notranslate"><span class="pre">--watch</span></code> 提供的路径。检测到创建、修改、移动或删除后，会停止当前子进程并重新启动。<code class="docutils literal notranslate"><span class="pre">--watch</span></code> 未提供参数时默认监测当前目录 <code class="docutils literal notranslate"><span class="pre">.</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">dev</span></code> 同样以子进程运行入口脚本，并支持 <code class="docutils literal notranslate"><span class="pre">Bot.restart()</span></code>；此外，它会递归监测 <code class="docutils literal notranslate"><span class="pre">--watch</span></code> 提供的路径。检测到创建、修改、移动或删除后，会停止当前子进程并重新启动。<code class="docutils literal notranslate"><span class="pre">--watch</span></code> 未提供参数时默认监测当前目录 <code class="docutils literal notranslate"><span class="pre">.</span></code>。入口文件之后的参数会传递给 bot 程序，需要传递选项时请使用 <code class="docutils literal notranslate"><span class="pre">--</span></code> 分隔。</p>
 <p>开发模式适合本地迭代插件和处理流。生产环境通常使用进程管理器、容器编排或发布系统完成重启，不建议依赖文件监测器。</p>
 </section>
 <section id="id2">
-<h2>命令速查<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<h2>停服与异常诊断<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">run</span></code> 和 <code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">dev</span></code> 收到 SIGINT 或 SIGTERM 后，会通知 bot 停止并等待子进程退出。重复信号不会重复等待或因停止标记已删除而报错。停服请求优先于程序主动重启；在开发模式下，也优先于文件变动触发的重载。</p>
+<p>melobot 默认隐藏异常回溯中的框架内部调用。排查 CLI 或框架自身的异常时，可以在启动命令前设置 <code class="docutils literal notranslate"><span class="pre">MELOBOT_EXC_SHOW_INTERNAL=1</span></code>，显示完整内部调用栈：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">MELOBOT_EXC_SHOW_INTERNAL</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>mb<span class="w"> </span>run<span class="w"> </span>bot.py
+<span class="nv">MELOBOT_EXC_SHOW_INTERNAL</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>mb<span class="w"> </span>dev<span class="w"> </span>bot.py<span class="w"> </span>--<span class="w"> </span>--debug
+</pre></div>
+</div>
+<p>PowerShell 中可先执行 <code class="docutils literal notranslate"><span class="pre">$env:MELOBOT_EXC_SHOW_INTERNAL</span> <span class="pre">=</span> <span class="pre">&quot;1&quot;</span></code>，再运行相同的 <code class="docutils literal notranslate"><span class="pre">mb</span></code> 命令。</p>
+</section>
+<section id="id3">
+<h2>命令速查<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -406,18 +427,18 @@ mb<span class="w"> </span>dev<span class="w"> </span>bot.py<span class="w"> </sp
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">pinit</span> <span class="pre">[-d</span> <span class="pre">深度]</span> <span class="pre">&lt;插件目录&gt;...</span></code></p></td>
 <td><p>生成插件入口与类型接口</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">run</span> <span class="pre">&lt;入口文件&gt;</span></code></p></td>
-<td><p>运行 bot，支持程序主动重启</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">run</span> <span class="pre">&lt;入口文件&gt;</span> <span class="pre">[--</span> <span class="pre">&lt;参数&gt;...]</span></code></p></td>
+<td><p>运行 bot，支持程序主动重启并传递参数</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">dev</span> <span class="pre">&lt;入口文件&gt;</span> <span class="pre">[-w</span> <span class="pre">路径...]</span></code></p></td>
-<td><p>开发模式运行，支持主动重启和文件变动自动重载</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">dev</span> <span class="pre">&lt;入口文件&gt;</span> <span class="pre">[-w</span> <span class="pre">路径...]</span> <span class="pre">[--</span> <span class="pre">&lt;参数&gt;...]</span></code></p></td>
+<td><p>开发模式运行，支持主动重启、自动重载和参数传递</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 </section>
-<section id="id3">
-<h2>总结<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<section id="id4">
+<h2>总结<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">pinit</span></code> 解决插件接口生成，<code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">run</span></code> 为程序主动重启提供运行环境，<code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">dev</span></code> 在此基础上增加文件监测。其余时候使用 <code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">--help</span></code> 确认参数，使用 <code class="docutils literal notranslate"><span class="pre">mb</span> <span class="pre">--version</span></code> 记录运行环境即可。</p>
 <p>下一篇将介绍：<a class="reference internal" href="mp.html"><span class="doc std std-doc">多进程支持</span></a>。</p>
 </section>
@@ -490,8 +511,9 @@ mb<span class="w"> </span>dev<span class="w"> </span>bot.py<span class="w"> </sp
 <li><a class="reference internal" href="#mb-pinit">初始化插件接口：mb pinit</a></li>
 <li><a class="reference internal" href="#mb-run">可重启运行：mb run</a></li>
 <li><a class="reference internal" href="#mb-dev">开发模式：mb dev</a></li>
-<li><a class="reference internal" href="#id2">命令速查</a></li>
-<li><a class="reference internal" href="#id3">总结</a></li>
+<li><a class="reference internal" href="#id2">停服与异常诊断</a></li>
+<li><a class="reference internal" href="#id3">命令速查</a></li>
+<li><a class="reference internal" href="#id4">总结</a></li>
 </ul>
 </li>
 </ul>
@@ -503,7 +525,7 @@ mb<span class="w"> </span>dev<span class="w"> </span>bot.py<span class="w"> </sp
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=424a1c66"></script>
+</div><script src="../_static/documentation_options.js?v=d6626981"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

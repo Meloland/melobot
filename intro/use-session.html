@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>交互式处理与会话的使用 - melobot 3.5.0</title>
+        <title>交互式处理与会话的使用 - melobot 3.5.0.post9.dev0+529882a</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -171,7 +171,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.5.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.5.0.post9.dev0+529882a</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -192,7 +192,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.5.0</span>
+  <span class="sidebar-brand-text">melobot 3.5.0.post9.dev0+529882a</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -404,7 +404,7 @@
 <p>将 <code class="docutils literal notranslate"><span class="pre">legacy_session</span></code> 参数置为 <code class="docutils literal notranslate"><span class="pre">True</span></code>，这是告诉 melobot，这个处理过程需要启用一个“传统会话”的规则。</p>
 <p>什么是规则？首先我们说过，会话的重要特性是<strong>暂时停止，并稍后恢复</strong>，稍候是什么时候？当然是出现<strong>一个可以让会话恢复的事件</strong>的时候，因为不是所有事件都能让会话“恢复”。</p>
 <p>melobot 如何知道哪些事件可以让某个会话恢复？就是凭借“会话规则”。会话规则是一种判断规则，让 melobot 在<strong>已经存在一个挂起的会话的前提下，对新来的事件进行是否可以唤醒会话的判断</strong>。这种判断称为“会话判断”。进行判断后如果返回真值，则认为可以唤醒。会话被唤醒，处理流中的“当前事件”将被更新，处理流的代码也将继续执行。</p>
-<p>那这里为什么是传统规则？melobot 基事件类型有一个实例属性 <code class="docutils literal notranslate"><span class="pre">scope</span></code>（<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Hashable" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Hashable</span></code></a> 类型）。而传统规则是一种内置的规则，会话判断即<strong>判断两个事件的 <code class="docutils literal notranslate"><span class="pre">scope</span></code> 是否 <code class="docutils literal notranslate"><span class="pre">==</span></code></strong>。举例来说，在 OneBot v11 协议支持中，scope 属性会被设置为 <code class="docutils literal notranslate"><span class="pre">(群组</span> <span class="pre">id</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">用户</span> <span class="pre">id)</span></code> 二元组，用于指示当前的“对话域”。此时的会话与其他 bot 开发框架中狭义的“会话”几乎是一个语义，所以此时的规则取名“传统规则”，此时的会话也就是“传统会话”。</p>
+<p>那这里为什么是传统规则？melobot 基事件类型有一个实例属性 <code class="docutils literal notranslate"><span class="pre">scope</span></code>（<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Hashable" title="（在 Python v3.15）"><code class="xref py py-class docutils literal notranslate"><span class="pre">Hashable</span></code></a> 类型）。而传统规则是一种内置的规则，会话判断即<strong>判断两个事件的 <code class="docutils literal notranslate"><span class="pre">scope</span></code> 是否 <code class="docutils literal notranslate"><span class="pre">==</span></code></strong>。举例来说，在 OneBot v11 协议支持中，scope 属性会被设置为 <code class="docutils literal notranslate"><span class="pre">(群组</span> <span class="pre">id</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">用户</span> <span class="pre">id)</span></code> 二元组，用于指示当前的“对话域”。此时的会话与其他 bot 开发框架中狭义的“会话”几乎是一个语义，所以此时的规则取名“传统规则”，此时的会话也就是“传统会话”。</p>
 </section>
 <section id="id5">
 <h3>依赖注入 + 反射<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
@@ -585,7 +585,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=424a1c66"></script>
+</div><script src="../_static/documentation_options.js?v=d6626981"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>事件处理流与机制 - melobot 3.5.0</title>
+        <title>事件处理流与机制 - melobot 3.5.0.post9.dev0+529882a</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -171,7 +171,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.5.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.5.0.post9.dev0+529882a</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -192,7 +192,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.5.0</span>
+  <span class="sidebar-brand-text">melobot 3.5.0.post9.dev0+529882a</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -425,7 +425,7 @@
 <p>假设现在已经存在 <code class="docutils literal notranslate"><span class="pre">n1</span></code> 到 <code class="docutils literal notranslate"><span class="pre">n7</span></code> 七个结点。我们希望它们组成以下的 DAG 结构，以便实现特定的处理逻辑：</p>
 <a class="reference internal image-reference" href="../_images/eg-flow-graph.svg"><img alt="eg-flow-graph" class="align-center" src="../_images/eg-flow-graph.svg" style="width: 400px;" />
 </a>
-<p>如图所示，红色结点为 DAG 可能的遍历起始点，红色结点为 DAG 遍历终止点。</p>
+<p>如图所示，绿色结点为 DAG 可能的遍历起始点，红色结点为 DAG 遍历终止点。</p>
 <p>melobot 对于处理流 DAG 的遍历规则如下：</p>
 <ol class="arabic simple">
 <li><p>获取 DAG 所有起始点</p></li>
@@ -845,7 +845,7 @@ n2 -&gt; n3 -&gt; n4 -&gt; n6 -&gt; n7
 </div>
 <div class="tip admonition">
 <p class="admonition-title">提示</p>
-<p>流存储和流记录不会在主流、子流间共享。无法使用这些功能完成跨流信息传递。</p>
+<p>流存储和流记录默认不会在主流、子流间共享。</p>
 </div>
 </section>
 <section id="get-flow-arg-doc">
@@ -1121,7 +1121,7 @@ n2 -&gt; n3 -&gt; n4 -&gt; n6 -&gt; n7
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=424a1c66"></script>
+</div><script src="../_static/documentation_options.js?v=d6626981"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

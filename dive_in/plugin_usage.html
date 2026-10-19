@@ -14,7 +14,7 @@
     <link rel="manifest" href="_static/site.webmanifest" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>插件系统与进阶用法 - melobot 3.5.0</title>
+        <title>插件系统与进阶用法 - melobot 3.5.0.post9.dev0+529882a</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -171,7 +171,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">melobot 3.5.0</div></a>
+      <a href="../index.html"><div class="brand">melobot 3.5.0.post9.dev0+529882a</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -192,7 +192,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
-  <span class="sidebar-brand-text">melobot 3.5.0</span>
+  <span class="sidebar-brand-text">melobot 3.5.0.post9.dev0+529882a</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
@@ -512,15 +512,15 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">bot.load_plugin(my_planner)</span></code></p></td>
 <td><p>匿名插件，直接在代码中构建</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>（可直接导入的模块名）</p></td>
+<tr class="row-odd"><td><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="（在 Python v3.15）"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>（可直接导入的模块名）</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bot.load_plugin(&quot;my_plugin&quot;)</span></code></p></td>
 <td><p>作为 Python 模块名导入，遵循 sys.path 搜索</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></a>（路径）</p></td>
+<tr class="row-even"><td><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="（在 Python v3.15）"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="（在 Python v3.15）"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></a>（路径）</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bot.load_plugin(&quot;./plugins/my_plugin&quot;)</span></code></p></td>
 <td><p>插件目录的路径（相对或绝对）</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference external" href="https://docs.python.org/3/library/types.html#types.ModuleType" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModuleType</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference external" href="https://docs.python.org/3/library/types.html#types.ModuleType" title="（在 Python v3.15）"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModuleType</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bot.load_plugin(plugin_dir_module)</span></code></p></td>
 <td><p>已导入的模块对象（插件目录对应的模块，不是 <code class="docutils literal notranslate"><span class="pre">__plugin__.py</span></code> 模块）</p></td>
 </tr>
@@ -819,7 +819,7 @@ mb<span class="w"> </span>pinit<span class="w"> </span>-d<span class="w"> </span
 <div class="danger admonition">
 <p class="admonition-title">危险</p>
 <p>melobot 支持动态加载插件，但是不支持动态卸载插件。<strong>Python 的底层机制决定：动态卸载模块是不安全的</strong>。</p>
-<p>即使递归清除 <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.modules" title="（在 Python v3.14）"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> 缓存且清理干净所有残余引用，重复导入一些模块也可能造成以下问题：解释器崩溃、内存泄漏、关键操作不再保持原子性。</p>
+<p>即使递归清除 <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.modules" title="（在 Python v3.15）"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> 缓存且清理干净所有残余引用，重复导入一些模块也可能造成以下问题：解释器崩溃、内存泄漏、关键操作不再保持原子性。</p>
 </div>
 </section>
 <section id="plugin-init-args">
@@ -1099,7 +1099,7 @@ mb<span class="w"> </span>pinit<span class="w"> </span>-d<span class="w"> </span
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=424a1c66"></script>
+</div><script src="../_static/documentation_options.js?v=d6626981"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

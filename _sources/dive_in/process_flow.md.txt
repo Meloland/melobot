@@ -112,7 +112,7 @@ async def test_node() -> None:
 :align: center
 ```
 
-如图所示，红色结点为 DAG 可能的遍历起始点，红色结点为 DAG 遍历终止点。
+如图所示，绿色结点为 DAG 可能的遍历起始点，红色结点为 DAG 遍历终止点。
 
 melobot 对于处理流 DAG 的遍历规则如下：
 
@@ -597,7 +597,7 @@ async def test_node(records: tuple[FlowRecord, ...]) -> None:
 ```{admonition} 提示
 :class: tip
 
-流存储和流记录不会在主流、子流间共享。无法使用这些功能完成跨流信息传递。
+流存储和流记录默认不会在主流、子流间共享。
 ```
 
 (get_flow_arg_doc)=
