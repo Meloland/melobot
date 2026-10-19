@@ -216,7 +216,7 @@ class HookMixin(Generic[HookEnumT]):
     继承后可注册 hook
     """
 
-    def __init__(self, hook_type: type[HookEnumT], hook_tag: str | None = None):
+    def __init__(self, hook_type: type[HookEnumT], hook_tag: str | None = None) -> None:
         """实例化一个 hook 混合类
 
         :param hook_type: hook 阶段的枚举类型

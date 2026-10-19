@@ -12,7 +12,9 @@ def tier1_main(args: argparse.Namespace) -> None:
         parser.print_help()
 
 
-parser = argparse.ArgumentParser(prog="mb", description="melobot 命令行工具", add_help=False)
+parser = argparse.ArgumentParser(
+    prog=version.PROG_NAME, description="melobot 命令行工具", add_help=False
+)
 parser.add_argument("-v", "--version", action="store_true", help="显示版本信息")
 parser.add_argument("-h", "--help", action="help", help="打印此帮助信息并退出")
 parser.set_defaults(_cmd_handler=tier1_main)
@@ -36,6 +38,11 @@ run_parser = sub_parsers.add_parser(
     "run", help="以子进程模式运行 bot 主程序，且支持重启", add_help=False
 )
 run_parser.add_argument("entry_file", help="bot 程序入口 .py 文件路径")
+run_parser.add_argument(
+    "bot_args",
+    nargs="*",
+    help="传递给 bot 程序的参数；需要传递选项时请在参数前加 --",
+)
 run_parser.add_argument("-h", "--help", action="help", help="打印此帮助信息并退出")
 run_parser.set_defaults(_cmd_handler=run.main)
 
@@ -44,12 +51,27 @@ dev_parser = sub_parsers.add_parser(
 )
 dev_parser.add_argument("entry_file", help="bot 程序入口 .py 文件路径")
 dev_parser.add_argument("-w", "--watch", nargs="*", default=["."], help="需要监测的文件或目录路径")
+dev_parser.add_argument(
+    "bot_args",
+    nargs="*",
+    help="传递给 bot 程序的参数；需要传递选项时请在参数前加 --",
+)
 dev_parser.add_argument("-h", "--help", action="help", help="打印此帮助信息并退出")
 dev_parser.set_defaults(_cmd_handler=dev.main)
 
 
+def parse_args(args: list[str] | None = None) -> argparse.Namespace:
+    parsed, unknown = parser.parse_known_args(args)
+    if unknown:
+        if unknown[0] == "--" and hasattr(parsed, "bot_args"):
+            parsed.bot_args.extend(unknown[1:])
+        else:
+            parser.error(f"unrecognized arguments: {' '.join(unknown)}")
+    return parsed
+
+
 def main() -> None:
-    args = parser.parse_args()
+    args = parse_args()
     args._cmd_handler(args)
 
 
